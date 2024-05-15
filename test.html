@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <body>
+        <button id="sendVideoButton">Send Random Video</button>
+        <div id="videoContainer"></div>
+    
+        <script>
+            const $sendVideoButton = document.getElementById('sendVideoButton');
+            const $videoContainer = document.getElementById('videoContainer');
+    
+            $sendVideoButton.addEventListener('click', () => {
+             
+                $sendVideoButton.setAttribute("disabled", "true");
+    
+               
+    
+                // Generate a random video link
+                const randomVideoLink ='video.webm';
+
+    
+                // Create the iframe element for the video player
+                const $videoPlayer = document.createElement('iframe');
+                $videoPlayer.setAttribute('src', randomVideoLink);
+                $videoPlayer.setAttribute('width', '560');
+                $videoPlayer.setAttribute('height', '315');
+                $videoPlayer.setAttribute('frameborder', '0');
+                $videoPlayer.setAttribute('allowfullscreen', true);
+    
+                // Clear previous video (if any) and append the new video player
+                $videoContainer.innerHTML = '';
+                $videoContainer.appendChild($videoPlayer);
+            });
+        </script>
+    </body>
+    </html>

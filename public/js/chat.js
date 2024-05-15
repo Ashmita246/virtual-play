@@ -5,11 +5,17 @@ const $messageForm = document.querySelector('#userForm')
 const $messageFormInput  = $messageForm.querySelector('input')
 const $messageFormButton = $messageForm.querySelector('button')
 const $sendLocationButton = document.getElementById("send-location")
+const $sendVideoButton = document.getElementById("send-video")
+const $videoContainer = document.getElementById('videoContainer');
+
+
 const $messages = document.querySelector('#messages')
 
 //Templates
 const messageTemplate = document.querySelector('#message-template').innerHTML
 const locationMessageTemplate = document.querySelector('#location-message-template').innerHTML
+const videoMessageTemplate = document.querySelector('#video-message-template').innerHTML
+
 const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML
 
 //options
@@ -53,6 +59,17 @@ socket.on('message', (message) => {
 socket.on('locationMessage', (message) => { 
     console.log('link: ', message)
     const html = Mustache.render(locationMessageTemplate, {
+      username: message.username, 
+      url: message.url,
+      createdAt: moment(message.createdAt).format("h:mm a"),
+    });
+    $messages.insertAdjacentHTML('beforeend', html)
+    autoscroll()
+})
+
+socket.on('videoMessage', (message) => { 
+    console.log('link: ', message)
+    const html = Mustache.render(videoMessageTemplate, {
       username: message.username, 
       url: message.url,
       createdAt: moment(message.createdAt).format("h:mm a"),
@@ -106,6 +123,33 @@ $sendLocationButton.addEventListener('click', ()=>{
             $sendLocationButton.removeAttribute("disabled");
             console.log('Location shared..')
         })
+    })
+})
+
+
+// $sendVideoButton.addEventListener('click', () => {
+//     $sendVideoButton.setAttribute("disabled", "true");
+//     // Generate a random video link
+//     const videoLink ='video.webm';
+
+//     // Create the iframe element for the video player
+//     const $videoPlayer = document.createElement('iframe');
+//     $videoPlayer.setAttribute('src', videoLink);
+//     $videoPlayer.setAttribute('width', '560');
+//     $videoPlayer.setAttribute('height', '315');
+//     $videoPlayer.setAttribute('frameborder', '0');
+//     $videoPlayer.setAttribute('allowfullscreen', true);
+
+//     // Clear previous video (if any) and append the new video player
+//     $videoContainer.innerHTML = '';
+//     $videoContainer.appendChild($videoPlayer);
+// });
+
+$sendVideoButton.addEventListener('click', ()=>{
+    $sendVideoButton.setAttribute( "disabled" , "true");
+    socket.emit('sendVideo', () => {
+        $sendVideoButton.removeAttribute("disabled");
+        console.log('Video shared..')
     })
 })
 
