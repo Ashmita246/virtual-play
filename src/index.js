@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require('fs');
 const express = require("express");
 const http = require("http");
 const socketio = require("socket.io");
@@ -78,15 +79,16 @@ io.on("connection", (socket) => {
 
   socket.on("sendVideo", (message, callback) => {
     const user = getUser(socket.id);
-    io.to(user.room).emit(
+    io.to(user?.room).emit(
       "videoMessage",
       generateVideoMessage(
-        user.username,
-        `video.webm`
+        user?.username,
+        `music-video.mp4`
       )
     );
     callback();
   });
+
 
   socket.on("disconnect", () => {
     const user = removeUser(socket.id);

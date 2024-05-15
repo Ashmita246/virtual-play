@@ -30,8 +30,7 @@
         </div>
     </div>
 
-
-    <script id="message-template" type =" text/html">
+    <script id="message-template" type ="text/html">
         <div class="message">
             <p>
                 <span class="message__name">{{username}}</span>
@@ -41,31 +40,26 @@
          </div>
     </script>
 
-    <script id="location-message-template" type =" text/html">
-
+    <script id="location-message-template" type ="text/html">
         <div class="message">
             <p>
                 <span class="message__name">{{username}}</span>
                 <span class="message__meta">{{createdAt}}</span>
             </p>
-            <p> <a href="{{url}}" target = "_blank">My current Location</a></p>
+            <p><a href="{{url}}" target="_blank">My current Location</a></p>
         </div>
-        
     </script>
 
-    <script id="video-message-template" type =" text/html">
+    <script id="video-message-template" type ="text/html">
         <div class="message">
-            <p>
-                <span class="message__name">{{username}}</span>
-                <span class="message__meta">{{createdAt}}</span>
-            </p>
-
-            <p> <a href="{{url}}" target = "_blank">play</a></p>
-
-            <script>
-         </div>
+            <video id="videoPlayer"  width="560" height="315" controls muted loop autoplay></video>
+            <div class="video-controls">
+                <button id="backwardButton">&#8249; 5s</button>
+                <button id="playPauseButton">Play</button>
+                <button id="forwardButton">5s &#8250;</button>
+            </div>
+        </div>
     </script>
-
 
     <script id="sidebar-template" type="text/html">
         <h2 class="room-title">{{room}}</h2>
@@ -80,8 +74,57 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.6.0/qs.min.js"></script>
-
-     <script src="/socket.io/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="/js/chat.js"></script>
+
+    <script>
+        // JavaScript logic for handling video messages
+// const $sendVideoButton = document.getElementById('send-video');
+const $videoContainer = document.getElementById('videoContainer');
+const videoMessageTemplate = document.getElementById('video-message-template').innerHTML;
+
+let videoPlayer; // Define videoPlayer globally
+
+$sendVideoButton.addEventListener('click', () => {
+    $sendVideoButton.setAttribute("disabled", "true");
+
+    // Generate a random video link
+    const randomVideoLink = '/music-video.mp4';
+
+    // Render the video template
+    $videoContainer.innerHTML = videoMessageTemplate;
+
+    // Get the video player and controls
+    videoPlayer = document.getElementById('videoPlayer'); // Assign videoPlayer globally
+    videoPlayer.setAttribute('src', randomVideoLink);
+    const $playPauseButton = document.getElementById('playPauseButton');
+    const $backwardButton = document.getElementById('backwardButton');
+    const $forwardButton = document.getElementById('forwardButton');
+
+    // Enable video controls
+    $playPauseButton.disabled = false;
+    $backwardButton.disabled = false;
+    $forwardButton.disabled = false;
+
+    $playPauseButton.addEventListener('click', () => {
+        if (videoPlayer.paused) {
+            videoPlayer.play();
+            $playPauseButton.textContent = 'Pause';
+        } else {
+            videoPlayer.pause();
+            $playPauseButton.textContent = 'Play';
+        }
+    });
+
+    $backwardButton.addEventListener('click', () => {
+        videoPlayer.currentTime -= 5;
+    });
+
+    $forwardButton.addEventListener('click', () => {
+        videoPlayer.currentTime += 5;
+    });
+});
+
+    </script>
 </body>
 </html>

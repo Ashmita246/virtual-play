@@ -22,29 +22,33 @@ const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML
 const {username, room} = Qs.parse(location.search, {ignoreQueryPrefix: true})
 
 const autoscroll = () => { 
-    //New message element
-    const $newMessage = $messages.lastElementChild
-    
-// Height of the new message
-const newMessageStyles = getComputedStyle($newMessage);
-const newMessageMargin = parseInt(newMessageStyles.marginBottom);
-const newMessageHeight = $newMessage.offsetHeight + newMessageMargin;
+    // New message element
+    const $newMessage = $messages.lastElementChild;
 
-
-    //Visible Height
-    const visibleHeight = $messages.offsetHeight
-
-    //Height of messages container
-    const containerHeight = $messages.scrollHeight
-
-    //How far have i scrolled
-    const scrollOffset = $messages.scrollTop + visibleHeight
-
-    if(containerHeight -newMessageHeight <= scrollOffset){
-        $messages.scrollTop = $messages.scrollHeight
+    // Ensure $newMessage exists before proceeding
+    if (!$newMessage) {
+        return;
     }
 
-}
+    // Height of the new message
+    const newMessageStyles = getComputedStyle($newMessage);
+    const newMessageMargin = parseInt(newMessageStyles.marginBottom);
+    const newMessageHeight = $newMessage.offsetHeight + newMessageMargin;
+
+    // Visible Height
+    const visibleHeight = $messages.offsetHeight;
+
+    // Height of messages container
+    const containerHeight = $messages.scrollHeight;
+
+    // How far have I scrolled
+    const scrollOffset = $messages.scrollTop + visibleHeight;
+
+    if (containerHeight - newMessageHeight <= scrollOffset) {
+        $messages.scrollTop = $messages.scrollHeight;
+    }
+};
+
 
 socket.on('message', (message) => {
      console.log(message)
@@ -72,7 +76,6 @@ socket.on('videoMessage', (message) => {
     console.log('link: ', message)
     const html = Mustache.render(videoMessageTemplate, {
       username: message.username, 
-      url: message.url,
       createdAt: moment(message.createdAt).format("h:mm a"),
     });
     $messages.insertAdjacentHTML('beforeend', html)
@@ -146,14 +149,17 @@ $sendLocationButton.addEventListener('click', ()=>{
 //     $videoContainer.appendChild($videoPlayer);
 // });
 
-$sendVideoButton.addEventListener('click', ()=>{
-    $sendVideoButton.setAttribute( "disabled" , "true");
-    socket.emit('sendVideo', () => {
+$sendVideoButton.addEventListener('click', () => {
+    $sendVideoButton.setAttribute("disabled", "true");
+    socket.emit('sendVideo', null, (err) => {
         $sendVideoButton.removeAttribute("disabled");
-        console.log('Video shared..')
-    })
-})
-
+        if (err) {
+            console.error('Error sending video:', err);
+            return;
+        }
+        console.log('Video shared..');
+    });
+});
 socket.emit('join', {username, room},(error) =>{
  
      if(error){  
