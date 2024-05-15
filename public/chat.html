@@ -15,15 +15,17 @@
         
         <div class="chat__main">
             <div id="messages" class="chat__messages"></div>
-            
+            <div id="videoContainer"></div>                
+
             <div class="compose">
                 <form id="userForm">
                     <label for="userInput">Enter your message:</label>
                     <input type="text" id="userInput" name="userInput" required>
                     <button type="submit">Submit</button>
                 </form>
-    
+                
                 <button id="send-location">Send Location</button>
+                <button id="send-video">Send Video</button>
             </div>       
         </div>
     </div>
@@ -49,6 +51,19 @@
             <p> <a href="{{url}}" target = "_blank">My current Location</a></p>
         </div>
         
+    </script>
+
+    <script id="video-message-template" type =" text/html">
+        <div class="message">
+            <p>
+                <span class="message__name">{{username}}</span>
+                <span class="message__meta">{{createdAt}}</span>
+            </p>
+
+            <p> <a href="{{url}}" target = "_blank">play</a></p>
+
+            <script>
+         </div>
     </script>
 
 
