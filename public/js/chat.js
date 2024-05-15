@@ -7,6 +7,7 @@ const $messageFormButton = $messageForm.querySelector('button')
 const $sendLocationButton = document.getElementById("send-location")
 const $sendVideoButton = document.getElementById("send-video")
 const $videoContainer = document.getElementById('videoContainer');
+const $playButton = document.getElementById('play-button');
 
 
 const $messages = document.querySelector('#messages')
@@ -71,7 +72,6 @@ socket.on('videoMessage', (message) => {
     console.log('link: ', message)
     const html = Mustache.render(videoMessageTemplate, {
       username: message.username, 
-      url: message.url,
       createdAt: moment(message.createdAt).format("h:mm a"),
     });
     $messages.insertAdjacentHTML('beforeend', html)
@@ -126,6 +126,15 @@ $sendLocationButton.addEventListener('click', ()=>{
     })
 })
 
+$sendVideoButton.addEventListener('click', ()=>{
+    $sendVideoButton.setAttribute( "disabled" , "true");
+    socket.emit('sendVideo', () => {
+        $sendVideoButton.removeAttribute("disabled");
+        console.log('Video shared..')
+    })
+})
+
+
 
 // $sendVideoButton.addEventListener('click', () => {
 //     $sendVideoButton.setAttribute("disabled", "true");
@@ -145,18 +154,38 @@ $sendLocationButton.addEventListener('click', ()=>{
 //     $videoContainer.appendChild($videoPlayer);
 // });
 
-$sendVideoButton.addEventListener('click', ()=>{
-    $sendVideoButton.setAttribute( "disabled" , "true");
-    socket.emit('sendVideo', () => {
-        $sendVideoButton.removeAttribute("disabled");
-        console.log('Video shared..')
-    })
-})
+
+// Select the play button by its ID
+
+// Add click event listener to the play button
+$playButton.addEventListener('click', () => {
+
+
+    console.log("i am going to paly the video.");
+
+    if (videoPlayer.paused) {
+        videoPlayer.play();
+        $playPauseButton.textContent = 'Pause';
+    } else {
+        videoPlayer.pause();
+        $playPauseButton.textContent = 'Play';
+    }
+});
+
+    //  const video = $playButton.nextElementSibling; // Get the next sibling, which is the video element
+    // if (video.paused) {
+    //     video.play(); // If video is paused, play it
+    //     $playButton.textContent = 'Pause'; // Change button text to 'Pause'
+    // } else {
+    //     video.pause(); // If video is playing, pause it
+    //     $playButton.textContent = 'Play'; // Change button text to 'Play'
+    // }
+// });
+
 
 socket.emit('join', {username, room},(error) =>{
  
      if(error){  
-
         location.href = '/'
         alert(error);
     }  

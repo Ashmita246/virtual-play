@@ -15,6 +15,7 @@ const {
   getUsersInRoom,
 } = require("./utils/users");
 
+
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
@@ -76,13 +77,12 @@ io.on("connection", (socket) => {
   });
 
 
-  socket.on("sendVideo", (message, callback) => {
+  socket.on("sendVideo", (callback) => {
     const user = getUser(socket.id);
     io.to(user.room).emit(
       "videoMessage",
       generateVideoMessage(
-        user.username,
-        `video.webm`
+        user.username        
       )
     );
     callback();
