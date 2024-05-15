@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .video-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        .video-controls button {
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <button id="sendVideoButton">Send Random Video</button>
+    <div id="videoContainer"></div>
+    <div class="video-controls">
+       
+        <button id="backwardButton">&#8249; 5s</button>
+        <button id="playPauseButton">Play</button>
+        <button id="forwardButton">5s &#8250;</button>
+    </div>
+
+    <script>
+        const $sendVideoButton = document.getElementById('sendVideoButton');
+        const $videoContainer = document.getElementById('videoContainer');
+        const $playPauseButton = document.getElementById('playPauseButton');
+        const $backwardButton = document.getElementById('backwardButton');
+        const $forwardButton = document.getElementById('forwardButton');
+
+        let videoPlayer;
+
+        $sendVideoButton.addEventListener('click', () => {
+            $sendVideoButton.setAttribute("disabled", "true");
+
+            // Generate a random video link
+            const randomVideoLink = 'music-video.mp4';
+
+            // Create the iframe element for the video player
+            videoPlayer = document.createElement('iframe');
+            videoPlayer.setAttribute('src', randomVideoLink);
+            videoPlayer.setAttribute('width', '560');
+            videoPlayer.setAttribute('height', '315');
+            videoPlayer.setAttribute('frameborder', '0');
+            videoPlayer.setAttribute('allowfullscreen', true);
+
+            // Clear previous video (if any) and append the new video player
+            $videoContainer.innerHTML = '';
+            $videoContainer.appendChild(videoPlayer);
+
+            // Enable video controls
+            $playPauseButton.disabled = false;
+            $backwardButton.disabled = false;
+            $forwardButton.disabled = false;
+        });
+
+        $playPauseButton.addEventListener('click', () => {
+            if (videoPlayer.contentWindow.document.querySelector('video').paused) {
+                videoPlayer.contentWindow.document.querySelector('video').play();
+                $playPauseButton.textContent = 'Pause';
+            } else {
+                videoPlayer.contentWindow.document.querySelector('video').pause();
+                $playPauseButton.textContent = 'Play';
+            }
+        });
+
+        $backwardButton.addEventListener('click', () => {
+            const video = videoPlayer.contentWindow.document.querySelector('video');
+            video.currentTime -= 5;
+        });
+
+        $forwardButton.addEventListener('click', () => {
+            const video = videoPlayer.contentWindow.document.querySelector('video');
+            video.currentTime += 5;
+        });
+    </script>
+</body>
+</html>
