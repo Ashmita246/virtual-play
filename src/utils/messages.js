@@ -16,7 +16,6 @@ const generateLocationMessage = (username, url) =>{
 const generateVideoMessage = (username, url) =>{
     return{
         username,
-        url,
         createdAt: new Date().getTime()
     }
 }
