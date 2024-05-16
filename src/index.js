@@ -22,6 +22,7 @@ const io = socketio(server);
 
 const port = process.env.PORT || 3000;
 const publicDirectoryPath = path.join(__dirname, "../public");
+let videoSharing=false;
 
 io.on("connection", (socket) => {
   console.log("New web socket connection");
@@ -76,18 +77,45 @@ io.on("connection", (socket) => {
     callback();
   });
 
+  socket.on("sendVideo", (callback) => {
+    const user = getUser(socket.id)
+    if(videoSharing){
+      socket.emit("videoSharingError","A video is already being shared");
+    }
+    else{
+    console.log("video sent.");
+    videoSharing=true; //set the videosharing flag to true
+    io.to(user.room).emit("videoMessage", generateVideoMessage(user.username));
+    io.to(user.room).emit("videoStarted");
+    callback();
+    }
+    
+  });
 
-  socket.on("sendVideo", (message, callback) => {
-    const user = getUser(socket.id);
-    io.to(user?.room).emit(
-      "videoMessage",
-      generateVideoMessage(
-        user?.username,
-        `music-video.mp4`
-      )
-    );
+  // play and pause event on the specific room
+  socket.on("playVideo", ({ videoPaused }, callback) => {
+    console.log("playVideo event received");
+
+    io.sockets.sockets.forEach((socket) => {
+      const user = getUser(socket.id);
+      io.to(user.room).emit("playVideo", { videoPaused });
+    });
+
     callback();
   });
+
+// forwardVideo event from client
+socket.on("forwardVideo", () => {
+  console.log("server forwarding");
+  const user = getUser(socket.id);
+  io.to(user.room).emit("forwardVideo"); 
+});
+
+// backwardVideo event from client
+socket.on("backwardVideo", () => {
+  const user = getUser(socket.id);
+  io.to(user.room).emit("backwardVideo"); 
+});
 
 
   socket.on("disconnect", () => {
@@ -102,8 +130,19 @@ io.on("connection", (socket) => {
         room: user.room,
         users: getUsersInRoom(user.room),
       });
+
+      if(videoSharing){
+        videoSharing = false;
+        io.to(user.room).emit("videoEnded");
+      }
     }
   });
+
+  
+
+  socket.on('videoEnded',()=>{
+    $sendVideoButton.setAttribute('disabled');
+  })
 });
 
 app.use(express.static(publicDirectoryPath));
