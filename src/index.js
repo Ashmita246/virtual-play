@@ -22,6 +22,7 @@ const io = socketio(server);
 
 const port = process.env.PORT || 3000;
 const publicDirectoryPath = path.join(__dirname, "../public");
+let videoSharing=false;
 
 io.on("connection", (socket) => {
   console.log("New web socket connection");
@@ -77,10 +78,18 @@ io.on("connection", (socket) => {
   });
 
   socket.on("sendVideo", (callback) => {
+    const user = getUser(socket.id)
+    if(videoSharing){
+      socket.emit("videoSharingError","A video is already being shared");
+    }
+    else{
     console.log("video sent.");
-    const user = getUser(socket.id);
+    videoSharing=true; //set the videosharing flag to true
     io.to(user.room).emit("videoMessage", generateVideoMessage(user.username));
+    io.to(user.room).emit("videoStarted");
     callback();
+    }
+    
   });
 
   // play and pause event on the specific room
@@ -121,8 +130,19 @@ socket.on("backwardVideo", () => {
         room: user.room,
         users: getUsersInRoom(user.room),
       });
+
+      if(videoSharing){
+        videoSharing = false;
+        io.to(user.room).emit("videoEnded");
+      }
     }
   });
+
+  
+
+  socket.on('videoEnded',()=>{
+    $sendVideoButton.setAttribute('disabled');
+  })
 });
 
 app.use(express.static(publicDirectoryPath));

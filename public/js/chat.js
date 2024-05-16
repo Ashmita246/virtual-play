@@ -27,6 +27,7 @@ const sidebarTemplate = document.querySelector("#sidebar-template").innerHTML;
 const { username, room } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
 });
+let videoSharing=false;
 
 const autoscroll = () => {
   //New message element
@@ -134,7 +135,13 @@ $sendLocationButton.addEventListener("click", () => {
 });
 
 $sendVideoButton.addEventListener("click", () => {
+  if (videoSharing) {
+    alert("A video is already being shared. Please wait until it finishes.");
+    return;
+  }
+
   $sendVideoButton.setAttribute("disabled", "true");
+  videoSharing= true;
   socket.emit("sendVideo", () => {
     // $sendVideoButton.removeAttribute("disabled");
     console.log("Video shared..");
@@ -169,6 +176,10 @@ $forwardButton.addEventListener("click", () => {
  socket.on("backwardVideo", () => {
   const $video = document.getElementById("video");
   $video.currentTime -= 10;  
+});
+
+socket.on('videoStarted',()=>{
+  $sendVideoButton.setAttribute('disabled','true');
 });
 
 
