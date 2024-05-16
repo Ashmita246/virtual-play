@@ -21,12 +21,14 @@
           <form id="userForm">
             <label for="userInput">Enter your message:</label>
             <input type="text" id="userInput" name="userInput" required />
-            <button type="submit">Submit</button>
+            <button type="submit">Send</button>
           </form>
 
           <button id="send-location">Send Location</button>
           <button id="send-video">Send Video</button>
-          <button id="play-button" >Play</button>        
+          <button id="backward-button" ><<</button>        
+          <button id="play-button" >Play</button>    
+          <button id="forward-button" >>></button>        
 
         </div>
       </div>
@@ -60,7 +62,7 @@
               <span class="message__meta">{{createdAt}}</span>
           </p>
 
-          <video width="820" height="340" controls>
+          <video id="video" width="720" height="340" controls>
             <source src="video.webm" type="video/webm">
             Your browser does not support the video tag.
         </video>

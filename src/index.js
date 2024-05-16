@@ -15,7 +15,6 @@ const {
   getUsersInRoom,
 } = require("./utils/users");
 
-
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
@@ -76,17 +75,38 @@ io.on("connection", (socket) => {
     callback();
   });
 
-
   socket.on("sendVideo", (callback) => {
+    console.log("video sent.");
     const user = getUser(socket.id);
-    io.to(user.room).emit(
-      "videoMessage",
-      generateVideoMessage(
-        user.username        
-      )
-    );
+    io.to(user.room).emit("videoMessage", generateVideoMessage(user.username));
     callback();
   });
+
+  // play and pause event on the specific room
+  socket.on("playVideo", ({ videoPaused }, callback) => {
+    console.log("playVideo event received");
+
+    io.sockets.sockets.forEach((socket) => {
+      const user = getUser(socket.id);
+      io.to(user.room).emit("playVideo", { videoPaused });
+    });
+
+    callback();
+  });
+
+// forwardVideo event from client
+socket.on("forwardVideo", () => {
+  console.log("server forwarding");
+  const user = getUser(socket.id);
+  io.to(user.room).emit("forwardVideo"); 
+});
+
+// backwardVideo event from client
+socket.on("backwardVideo", () => {
+  const user = getUser(socket.id);
+  io.to(user.room).emit("backwardVideo"); 
+});
+
 
   socket.on("disconnect", () => {
     const user = removeUser(socket.id);
