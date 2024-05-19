@@ -2,35 +2,31 @@ const users = []
 
 //addUser, removeUser, getUser, getUserInRoom
 const addUser = ({ id, username, room }) => {
+  if (!username || !room) {
+    return {
+      error: "Username and room are required",
+    };
+  }
 
-
-  //Clean the data
+  // Clean the data
   username = username.trim().toLowerCase();
   room = room.trim().toLowerCase();
  
   console.log('username: ' + username)
   
-  // Validate the data
-  if (!username.trim()  || !room.trim()) {
-    return {    
-        error: "Username and room are required",
-    };
-  }
- 
-
-  //check for existing user
+  // Check for existing user
   const existingUser = users.find((user) => {
     return user.room === room && user.username === username;
   });
 
-  //validate the username
+  // Validate the username
   if (existingUser) {
     return {
       error: "Username is already in use.",
     };
   }
 
-  //store user
+  // Store user
   const user = { id, username, room };
   users.push(user);
   return user;

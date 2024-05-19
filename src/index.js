@@ -77,21 +77,45 @@ io.on("connection", (socket) => {
     callback();
   });
 
-  socket.on("sendVideo", (callback) => {
-    const user = getUser(socket.id)
-    if(videoSharing){
-      socket.emit("videoSharingError","A video is already being shared");
-    }
-    else{
-    console.log("video sent.");
-    videoSharing=true; //set the videosharing flag to true
-    io.to(user.room).emit("videoMessage", generateVideoMessage(user.username));
-    io.to(user.room).emit("videoStarted");
-    callback();
-    }
+  // socket.on("sendVideo", (callback) => {
+  //   const user = getUser(socket.id)
+  //   if(videoSharing){
+  //     socket.emit("videoSharingError","A video is already being shared");
+  //   }
+  //   else{
+  //   console.log("video sent.");
+  //   videoSharing=true; //set the videosharing flag to true
+  //   io.to(user.room).emit("videoMessage", generateVideoMessage(user.username));
+  //   io.to(user.room).emit("videoStarted");
+  //   callback();
+  //   }
     
-  });
+  // });
 
+  socket.on("sendVideo", (videoDataOrUrls, callback) => {
+    const user = getUser(socket.id);
+  
+    const message = {
+      username: user.username,
+      createdAt: new Date().getTime(),
+    };
+  
+    // Determine if videoDataOrUrls is a single video data or an array of video URLs
+    if (typeof videoDataOrUrls === 'string') {
+      // Single video data
+      message.videoData = videoDataOrUrls;
+    } else if (Array.isArray(videoDataOrUrls)) {
+      // Array of video URLs
+      message.videos = videoDataOrUrls;
+    } else {
+      // Invalid data
+      return callback("Invalid video data");
+    }
+  
+    io.to(user.room).emit('videoMessage', message);
+    callback();
+  });
+  
   // play and pause event on the specific room
   socket.on("playVideo", ({ videoPaused }, callback) => {
     console.log("playVideo event received");

@@ -1,10 +1,11 @@
 const socket = io();
 
-//Elements
+// Elements
 const $messageForm = document.querySelector("#userForm");
 const $messageFormInput = $messageForm.querySelector("input");
 const $messageFormButton = $messageForm.querySelector("button");
 const $sendLocationButton = document.getElementById("send-location");
+const $videoSelect = document.getElementById("videoSelect");
 const $sendVideoButton = document.getElementById("send-video");
 const $videoContainer = document.getElementById("videoContainer");
 const $messages = document.querySelector("#messages");
@@ -12,39 +13,34 @@ const $playButton = document.getElementById("play-button");
 const $forwardButton = document.getElementById("forward-button");
 const $backwardButton = document.getElementById("backward-button");
 
-//Templates
+// Templates
 const messageTemplate = document.querySelector("#message-template").innerHTML;
-const locationMessageTemplate = document.querySelector(
-  "#location-message-template"
-).innerHTML;
-const videoMessageTemplate = document.querySelector(
-  "#video-message-template"
-).innerHTML;
-
+const locationMessageTemplate = document.querySelector("#location-message-template").innerHTML;
+const videoMessageTemplate = document.querySelector("#video-message-template").innerHTML;
 const sidebarTemplate = document.querySelector("#sidebar-template").innerHTML;
 
-//options
+// Options
 const { username, room } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
 });
-let videoSharing=false;
+let videoSharing = false;
 
 const autoscroll = () => {
-  //New message element
+  // New message element
   const $newMessage = $messages.lastElementChild;
 
-  //Height of the new message
+  // Height of the new message
   const newMessageStyles = getComputedStyle($newMessage);
-  const newMessageMargin = parseInt($newMessageStyles.marginBottom);
+  const newMessageMargin = parseInt(newMessageStyles.marginBottom);
   const newMessageHeight = $newMessage.offsetHeight + newMessageMargin;
 
-  //Visible Height
+  // Visible Height
   const visibleHeight = $messages.offsetHeight;
 
-  //Height of messages container
+  // Height of messages container
   const containerHeight = $messages.scrollHeight;
 
-  //How far have i scrolled
+  // How far have i scrolled
   const scrollOffset = $messages.scrollTop + visibleHeight;
 
   if (containerHeight - newMessageHeight <= scrollOffset) {
@@ -75,13 +71,15 @@ socket.on("locationMessage", (message) => {
 });
 
 socket.on("videoMessage", (message) => {
-  console.log("link: ", message);
+  console.log("Video message: ", message);
   const html = Mustache.render(videoMessageTemplate, {
     username: message.username,
     createdAt: moment(message.createdAt).format("h:mm a"),
+    videos: message.videos  // array of video URLs
   });
   $messages.insertAdjacentHTML("beforeend", html);
   autoscroll();
+  attachVideoEventListeners();  // attach event listeners to the new videos
 });
 
 socket.on("roomData", ({ room, users }) => {
@@ -94,12 +92,12 @@ socket.on("roomData", ({ room, users }) => {
 
 $messageForm.addEventListener("submit", function (event) {
   event.preventDefault(); // Prevent form submission
-  //disable
+  // disable
   $messageFormButton.setAttribute("disabled", "true");
 
   const message = document.getElementById("userInput").value;
   socket.emit("sendMessage", message, (err) => {
-    //enable
+    // enable
     $messageFormButton.removeAttribute("disabled");
     $messageFormInput.value = "";
     $messageFormInput.focus();
@@ -114,7 +112,7 @@ $messageForm.addEventListener("submit", function (event) {
 
 $sendLocationButton.addEventListener("click", () => {
   if (!navigator.geolocation) {
-    return alert("Geolocation is  not supported by your browser..");
+    return alert("Geolocation is not supported by your browser.");
   }
 
   $sendLocationButton.setAttribute("disabled", "true");
@@ -128,70 +126,103 @@ $sendLocationButton.addEventListener("click", () => {
       },
       () => {
         $sendLocationButton.removeAttribute("disabled");
-        console.log("Location shared..");
+        console.log("Location shared.");
       }
     );
   });
 });
 
+// Update the $sendVideoButton event listener to handle sending the selected video
+// Update the $sendVideoButton event listener to handle sending the selected video
 $sendVideoButton.addEventListener("click", () => {
-  if (videoSharing) {
-    alert("A video is already being shared. Please wait until it finishes.");
+  const selectedVideoIndex = $videoSelect.selectedIndex;
+  if (selectedVideoIndex === 0) {
+    alert("Please select a video to send.");
     return;
   }
 
-  $sendVideoButton.setAttribute("disabled", "true");
-  videoSharing= true;
-  socket.emit("sendVideo", () => {
-    // $sendVideoButton.removeAttribute("disabled");
-    console.log("Video shared..");
+  const selectedVideoUrl = $videoSelect.options[selectedVideoIndex].value;
+  socket.emit("sendVideo", selectedVideoUrl, () => {
+    console.log("Video sent to the server.");
   });
 });
 
-// listener events on button click
+
+// Populate the video select options with the two videos
+const availableVideos = ["music-video.mp4", "videoplayback.mp4"];
+updateVideoSelectOptions(availableVideos);
+
+function updateVideoSelectOptions(videos) {
+  $videoSelect.innerHTML = '<option value="" disabled selected>Select a video</option>';
+  videos.forEach((selectedVideoUrl, index) => {
+    const option = document.createElement("option");
+    option.value = selectedVideoUrl;
+    option.textContent = `Video ${index + 1}`;
+    $videoSelect.appendChild(option);
+  });
+}
+
+function attachVideoEventListeners() {
+  const videos = document.querySelectorAll('.video');
+
+  videos.forEach(video => {
+    video.addEventListener('play', () => {
+      videos.forEach(otherVideo => {
+        if (otherVideo !== video) {
+          otherVideo.pause();
+        }
+      });
+    });
+  });
+}
+
+// Listener events on button click
 $playButton.addEventListener("click", () => {
-  const $video = document.getElementById("video");
-  const videoPaused = $video.paused;
-  // if ($video.play) {
-  //   videoPaused = false;
-  // }
-  socket.emit("playVideo", { videoPaused }, () => {});
+  const video = document.querySelector('.video');
+  if (!video) return;
+
+  const videoPaused = video.paused;
+  socket.emit("playVideo", { videoPaused });
 });
 
-
 $forwardButton.addEventListener("click", () => {
-  console.log("button clicked");
+  const video = document.querySelector('.video');
+  if (!video) return;
+
   socket.emit("forwardVideo");
 });
 
- $backwardButton.addEventListener("click", () => {
+$backwardButton.addEventListener("click", () => {
+  const video = document.querySelector('.video');
+  if (!video) return;
+
   socket.emit("backwardVideo");
 });
 
- socket.on("forwardVideo", () => {
-  const $video = document.getElementById("video");
-  $video.currentTime += 10; 
+socket.on("forwardVideo", () => {
+  const video = document.querySelector('.video');
+  if (video) {
+    video.currentTime += 10;
+  }
 });
 
- socket.on("backwardVideo", () => {
-  const $video = document.getElementById("video");
-  $video.currentTime -= 10;  
+socket.on("backwardVideo", () => {
+  const video = document.querySelector('.video');
+  if (video) {
+    video.currentTime -= 10;
+  }
 });
 
-socket.on('videoStarted',()=>{
-  $sendVideoButton.setAttribute('disabled','true');
-});
-
-
-// event from the server
 socket.on("playVideo", ({ videoPaused }) => {
-  const $video = document.getElementById("video");
-  if (videoPaused ) {
-    $video.play();
-    $playButton.textContent = "Pause";
-  } else {
-    $video.pause();
-    $playButton.textContent = "Play";
+  const video = document.querySelector('.video');
+  if (video) {
+    if (videoPaused) {
+      video.play();
+      $playButton.textContent = "Pause";
+    } else {
+      video.pause();
+      $playButton.textContent = "Play";
+    }
   }
 });
 
