@@ -22,7 +22,9 @@ const io = socketio(server);
 
 const port = process.env.PORT || 3000;
 const publicDirectoryPath = path.join(__dirname, "../public");
-let videoSharing=false;
+let videoSharing = false;
+
+app.use(express.static(publicDirectoryPath));
 
 io.on("connection", (socket) => {
   console.log("New web socket connection");
@@ -65,58 +67,51 @@ io.on("connection", (socket) => {
     callback();
   });
 
-  socket.on("sendLocation", (cords, callback) => {
+  socket.on("sendLocation", (coords, callback) => {
     const user = getUser(socket.id);
     io.to(user.room).emit(
       "locationMessage",
       generateLocationMessage(
         user.username,
-        `https://google.com/maps?q=${cords.latitude},${cords.longitude}`
+        `https://google.com/maps?q=${coords.latitude},${coords.longitude}`
       )
     );
     callback();
   });
 
-  socket.on("sendVideo", (callback) => {
-    const user = getUser(socket.id)
-    if(videoSharing){
-      socket.emit("videoSharingError","A video is already being shared");
-    }
-    else{
-    console.log("video sent.");
-    videoSharing=true; //set the videosharing flag to true
-    io.to(user.room).emit("videoMessage", generateVideoMessage(user.username));
-    io.to(user.room).emit("videoStarted");
+  socket.on('sendVideo', (videoUrl, callback) => {
+    const user = getUser(socket.id);
+    const videoMessage = {
+      username: user.username,
+      videos: [videoUrl],
+      createdAt: new Date().getTime()
+    };
+    io.to(user.room).emit('videoMessage', videoMessage);
     callback();
-    }
-    
   });
 
-  // play and pause event on the specific room
+  // Play and pause event on the specific room
   socket.on("playVideo", ({ videoPaused }, callback) => {
     console.log("playVideo event received");
-
-    io.sockets.sockets.forEach((socket) => {
-      const user = getUser(socket.id);
-      io.to(user.room).emit("playVideo", { videoPaused });
-    });
-
-    callback();
+    const user = getUser(socket.id);
+    io.to(user.room).emit("playVideo", { videoPaused });
+    if (typeof callback === 'function') {
+      callback("Play/Pause acknowledged");
+    }
   });
 
-// forwardVideo event from client
-socket.on("forwardVideo", () => {
-  console.log("server forwarding");
-  const user = getUser(socket.id);
-  io.to(user.room).emit("forwardVideo"); 
-});
+  // Forward video event from client
+  socket.on("forwardVideo", () => {
+    console.log("server forwarding");
+    const user = getUser(socket.id);
+    io.to(user.room).emit("forwardVideo");
+  });
 
-// backwardVideo event from client
-socket.on("backwardVideo", () => {
-  const user = getUser(socket.id);
-  io.to(user.room).emit("backwardVideo"); 
-});
-
+  // Backward video event from client
+  socket.on("backwardVideo", () => {
+    const user = getUser(socket.id);
+    io.to(user.room).emit("backwardVideo");
+  });
 
   socket.on("disconnect", () => {
     const user = removeUser(socket.id);
@@ -131,21 +126,17 @@ socket.on("backwardVideo", () => {
         users: getUsersInRoom(user.room),
       });
 
-      if(videoSharing){
+      if (videoSharing) {
         videoSharing = false;
         io.to(user.room).emit("videoEnded");
       }
     }
   });
 
-  
-
-  socket.on('videoEnded',()=>{
-    $sendVideoButton.setAttribute('disabled');
-  })
+  socket.on('videoEnded', () => {
+    $sendVideoButton.setAttribute('disabled', true);
+  });
 });
-
-app.use(express.static(publicDirectoryPath));
 
 server.listen(port, () => {
   console.log("Server is running on port " + port);

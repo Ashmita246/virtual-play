@@ -25,46 +25,48 @@
           </form>
 
           <button id="send-location">Send Location</button>
+          <select id="videoSelect">
+          <option value="" disabled selected>Select a video</option>
+          </select>
           <button id="send-video">Send Video</button>
-          <button id="backward-button" ><<</button>        
-          <button id="play-button" >Play</button>    
-          <button id="forward-button" >>></button>        
-
+          <button id="backward-button"><<</button>        
+          <button id="play-button">Play</button>    
+          <button id="forward-button">>></button>        
         </div>
       </div>
     </div>
 
     <script id="message-template" type=" text/html">
       <div class="message">
-          <p>
-              <span class="message__name">{{username}}</span>
-              <span class="message__meta">{{createdAt}}</span>
-          </p>
-          <p>{{message}}</p>
-       </div>
-    </script>
-
-    <script id="location-message-template" type=" text/html">
-
-      <div class="message">
-          <p>
-              <span class="message__name">{{username}}</span>
-              <span class="message__meta">{{createdAt}}</span>
-          </p>
-          <p> <a href="{{url}}" target = "_blank">My current Location</a></p>
+        <p>
+          <span class="message__name">{{username}}</span>
+          <span class="message__meta">{{createdAt}}</span>
+        </p>
+        <p>{{message}}</p>
       </div>
     </script>
 
-    <script id="video-message-template" type=" text/html">
+    <script id="location-message-template" type=" text/html">
       <div class="message">
-          <p>
-              <span class="message__name">{{username}}</span>
-              <span class="message__meta">{{createdAt}}</span>
-          </p>
+        <p>
+          <span class="message__name">{{username}}</span>
+          <span class="message__meta">{{createdAt}}</span>
+        </p>
+        <p><a href="{{url}}" target="_blank">My current Location</a></p>
+      </div>
+    </script>
 
-          <video id="video" width="720" height="340" controls>
-            <source src="music-video.mp4" type="video/mp4">
+    <script id="video-message-template" type="text/html">
+      <div class="message">
+        <p>
+          <span class="message__name">{{username}}</span>
+          <span class="message__meta">{{createdAt}}</span>
+        </p>
+        {{#videos}}
+        <video class="video" width="720" height="340" controls>
+          <source src="{{.}}" type="video/mp4">
         </video>
+        {{/videos}}
       </div>
     </script>
 
@@ -81,7 +83,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.6.0/qs.min.js"></script>
-
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/chat.js"></script>
   </body>
