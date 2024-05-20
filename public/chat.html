@@ -26,7 +26,7 @@
 
           <button id="send-location">Send Location</button>
           <select id="videoSelect">
-            <option value="" disabled selected>Select a video</option>
+          <option value="" disabled selected>Select a video</option>
           </select>
           <button id="send-video">Send Video</button>
           <button id="backward-button"><<</button>        
@@ -64,7 +64,7 @@
         </p>
         {{#videos}}
         <video class="video" width="720" height="340" controls>
-          <source src="{{videoData}}" type="video/mp4">
+          <source src="{{.}}" type="video/mp4">
         </video>
         {{/videos}}
       </div>

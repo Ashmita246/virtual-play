@@ -82,6 +82,24 @@ socket.on("videoMessage", (message) => {
   attachVideoEventListeners();  // attach event listeners to the new videos
 });
 
+function attachVideoEventListeners() {
+  const videos = document.querySelectorAll('.video');
+
+  videos.forEach(video => {
+    video.addEventListener('play', () => {
+      videos.forEach(otherVideo => {
+        if (otherVideo !== video) {
+          otherVideo.pause();
+        }
+      });
+    });
+
+    video.addEventListener('error', () => {
+      console.error(`Failed to load video: ${video.currentSrc}`);
+    });
+  });
+}
+
 socket.on("roomData", ({ room, users }) => {
   const html = Mustache.render(sidebarTemplate, {
     room,
@@ -134,6 +152,22 @@ $sendLocationButton.addEventListener("click", () => {
 
 // Update the $sendVideoButton event listener to handle sending the selected video
 // Update the $sendVideoButton event listener to handle sending the selected video
+
+
+// Populate the video select options with the two videos
+const availableVideos = ["music-video.mp4", "videoplayback.mp4","blankSpace.mp4"];
+updateVideoSelectOptions(availableVideos);
+
+function updateVideoSelectOptions(videos) {
+  $videoSelect.innerHTML = '<option value="" disabled selected>Select a video</option>';
+  videos.forEach((videoUrl, index) => {
+    const option = document.createElement("option");
+    option.value = videoUrl;
+    option.textContent = `Video ${index + 1}`;
+    $videoSelect.appendChild(option);
+  });
+}
+
 $sendVideoButton.addEventListener("click", () => {
   const selectedVideoIndex = $videoSelect.selectedIndex;
   if (selectedVideoIndex === 0) {
@@ -147,43 +181,17 @@ $sendVideoButton.addEventListener("click", () => {
   });
 });
 
-
-// Populate the video select options with the two videos
-const availableVideos = ["music-video.mp4", "videoplayback.mp4"];
-updateVideoSelectOptions(availableVideos);
-
-function updateVideoSelectOptions(videos) {
-  $videoSelect.innerHTML = '<option value="" disabled selected>Select a video</option>';
-  videos.forEach((selectedVideoUrl, index) => {
-    const option = document.createElement("option");
-    option.value = selectedVideoUrl;
-    option.textContent = `Video ${index + 1}`;
-    $videoSelect.appendChild(option);
-  });
-}
-
-function attachVideoEventListeners() {
-  const videos = document.querySelectorAll('.video');
-
-  videos.forEach(video => {
-    video.addEventListener('play', () => {
-      videos.forEach(otherVideo => {
-        if (otherVideo !== video) {
-          otherVideo.pause();
-        }
-      });
-    });
-  });
-}
-
 // Listener events on button click
 $playButton.addEventListener("click", () => {
   const video = document.querySelector('.video');
   if (!video) return;
 
   const videoPaused = video.paused;
-  socket.emit("playVideo", { videoPaused });
+  socket.emit("playVideo", { videoPaused }, (ack) => {
+    console.log("Acknowledgement from server:", ack);
+  });
 });
+
 
 $forwardButton.addEventListener("click", () => {
   const video = document.querySelector('.video');
