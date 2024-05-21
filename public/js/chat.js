@@ -48,6 +48,12 @@ const autoscroll = () => {
   }
 };
 
+function getLastVideoElement() {
+  const videos = $messages.querySelectorAll('.video');
+  return videos[videos.length - 1]; // Return the last video element
+}
+
+
 socket.on("message", (message) => {
   console.log(message);
   const html = Mustache.render(messageTemplate, {
@@ -155,7 +161,7 @@ $sendLocationButton.addEventListener("click", () => {
 
 
 // Populate the video select options with the two videos
-const availableVideos = ["music-video.mp4", "videoplayback.mp4","blankSpace.mp4"];
+const availableVideos = ["music-video.mp4", "videoplayback.mp4","blankSpace.mp4","closer.mp4"];
 updateVideoSelectOptions(availableVideos);
 
 function updateVideoSelectOptions(videos) {
@@ -183,46 +189,48 @@ $sendVideoButton.addEventListener("click", () => {
 
 // Listener events on button click
 $playButton.addEventListener("click", () => {
-  const video = document.querySelector('.video');
+  const video = getLastVideoElement();
   if (!video) return;
 
   const videoPaused = video.paused;
   socket.emit("playVideo", { videoPaused }, (ack) => {
     console.log("Acknowledgement from server:", ack);
+    console.log("something something", video);
   });
 });
 
 
 $forwardButton.addEventListener("click", () => {
-  const video = document.querySelector('.video');
+  const video = getLastVideoElement();
   if (!video) return;
 
   socket.emit("forwardVideo");
 });
 
 $backwardButton.addEventListener("click", () => {
-  const video = document.querySelector('.video');
+  const video = getLastVideoElement();
   if (!video) return;
 
   socket.emit("backwardVideo");
 });
 
 socket.on("forwardVideo", () => {
-  const video = document.querySelector('.video');
+  const video = getLastVideoElement();
   if (video) {
     video.currentTime += 10;
   }
 });
 
 socket.on("backwardVideo", () => {
-  const video = document.querySelector('.video');
+ 
+  const video = getLastVideoElement();
   if (video) {
     video.currentTime -= 10;
   }
 });
 
 socket.on("playVideo", ({ videoPaused }) => {
-  const video = document.querySelector('.video');
+  const video = getLastVideoElement();
   if (video) {
     if (videoPaused) {
       video.play();
