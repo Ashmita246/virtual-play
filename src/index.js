@@ -1,20 +1,11 @@
 const path = require("path");
-const fs = require('fs');
 const express = require("express");
 const http = require("http");
 const socketio = require("socket.io");
 const Filter = require("bad-words");
-const {
-  generateMessage,
-  generateLocationMessage,
-  generateVideoMessage,
-} = require("./utils/messages");
-const {
-  addUser,
-  removeUser,
-  getUser,
-  getUsersInRoom,
-} = require("./utils/users");
+const { generateMessage, generateLocationMessage, generateVideoMessage } = require("./utils/messages");
+const { getPlatformType,getYouTubeVideoID } = require('./utils/platformUtils');
+const { addUser, removeUser, getUser, getUsersInRoom } = require("./utils/users");
 
 const app = express();
 const server = http.createServer(app);
@@ -22,9 +13,10 @@ const io = socketio(server);
 
 const port = process.env.PORT || 3000;
 const publicDirectoryPath = path.join(__dirname, "../public");
-let videoSharing = false;
 
 app.use(express.static(publicDirectoryPath));
+
+const supportedPlatforms = ['YouTube'];
 
 io.on("connection", (socket) => {
   console.log("New web socket connection");
@@ -81,15 +73,28 @@ io.on("connection", (socket) => {
 
   socket.on('sendVideo', (videoUrl, callback) => {
     const user = getUser(socket.id);
-    const videoMessage = {
-      username: user.username,
-      videos: [videoUrl],
-      createdAt: new Date().getTime()
-    };
-    io.to(user.room).emit('videoMessage', videoMessage);
+    const platform = getPlatformType(videoUrl);
+  
+    if (!supportedPlatforms.includes(platform)) {
+      return callback(`Platform ${platform} is not supported.`);
+    }
+  
+    const videoId = getYouTubeVideoID(videoUrl);
+    if (!videoId) {
+      return callback("Invalid video URL.");
+    }
+  
+    const videoMessage = generateVideoMessage(user.username, videoUrl, platform);
+  
+    io.to(user.room).emit('videoMessage', {
+      username: socket.username,
+      videoUrl,
+      platform,
+      createdAt: new Date().getTime(),
+    });
+  
     callback();
   });
-
   // Play and pause event on the specific room
   socket.on("playVideo", ({ videoPaused }, callback) => {
     console.log("playVideo event received");
@@ -125,16 +130,7 @@ io.on("connection", (socket) => {
         room: user.room,
         users: getUsersInRoom(user.room),
       });
-
-      if (videoSharing) {
-        videoSharing = false;
-        io.to(user.room).emit("videoEnded");
-      }
     }
-  });
-
-  socket.on('videoEnded', () => {
-    $sendVideoButton.setAttribute('disabled', true);
   });
 });
 
