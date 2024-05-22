@@ -25,9 +25,11 @@
           </form>
 
           <button id="send-location">Send Location</button>
-          <select id="videoSelect">
+          <!-- <select id="videoSelect">
           <option value="" disabled selected>Select a video</option>
-          </select>
+          </select> -->
+          <label for="video-url-input">Enter video URL:</label>
+          <input id="video-url-input" placeholder="Enter video URL">
           <button id="send-video">Send Video</button>
           <button id="backward-button"><<</button>        
           <button id="play-button">Play</button>    
@@ -62,11 +64,13 @@
           <span class="message__name">{{username}}</span>
           <span class="message__meta">{{createdAt}}</span>
         </p>
-        {{#videos}}
-        <video class="video" width="720" height="340" controls>
-          <source src="{{.}}" type="video/mp4">
-        </video>
-        {{/videos}}
+        {{#if videoUrl}}
+          {{#is platform "YouTube"}}
+            <div class="video-container">
+              <iframe class="video" width="560" height="315" src="https://www.youtube.com/embed/{{videoId}}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+          {{/is}}
+        {{/if}}
       </div>
     </script>
 

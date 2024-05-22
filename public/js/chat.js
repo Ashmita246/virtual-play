@@ -5,8 +5,9 @@ const $messageForm = document.querySelector("#userForm");
 const $messageFormInput = $messageForm.querySelector("input");
 const $messageFormButton = $messageForm.querySelector("button");
 const $sendLocationButton = document.getElementById("send-location");
-const $videoSelect = document.getElementById("videoSelect");
-const $sendVideoButton = document.getElementById("send-video");
+// const $videoSelect = document.getElementById("videoSelect");
+const $videoUrlInput = document.querySelector("#video-url-input");
+const $sendVideoButton = document.querySelector("#send-video");
 const $videoContainer = document.getElementById("videoContainer");
 const $messages = document.querySelector("#messages");
 const $playButton = document.getElementById("play-button");
@@ -47,13 +48,23 @@ const autoscroll = () => {
     $messages.scrollTop = $messages.scrollHeight;
   }
 };
+const videoPlayers = {};
 
 function getLastVideoElement() {
   const videos = $messages.querySelectorAll('.video');
   return videos[videos.length - 1]; // Return the last video element
 }
 
-
+function getYouTubeVideoID(url) {
+  try {
+    const urlObj = new URL(url);
+    const searchParams = new URLSearchParams(urlObj.search);
+    return searchParams.get('v') || urlObj.pathname.split('/').pop();
+  } catch (error) {
+    console.error("Invalid URL:", url, error);
+    return null;
+  }
+}
 socket.on("message", (message) => {
   console.log(message);
   const html = Mustache.render(messageTemplate, {
@@ -76,17 +87,24 @@ socket.on("locationMessage", (message) => {
   autoscroll();
 });
 
-socket.on("videoMessage", (message) => {
-  console.log("Video message: ", message);
+socket.on('videoMessage', (message) => {
+  const videoId = getYouTubeVideoID(message.videoUrl);
+  if (!videoId) {
+    console.error("Invalid video URL received:", message.videoUrl);
+    return;
+  }
+
   const html = Mustache.render(videoMessageTemplate, {
     username: message.username,
+    platform: 'YouTube', // Set the platform to 'YouTube'
+    videoId,
     createdAt: moment(message.createdAt).format("h:mm a"),
-    videos: message.videos  // array of video URLs
   });
-  $messages.insertAdjacentHTML("beforeend", html);
+  $messages.insertAdjacentHTML('beforeend', html);
   autoscroll();
-  attachVideoEventListeners();  // attach event listeners to the new videos
+  attachVideoEventListeners(); // Attach event listeners to the new video
 });
+
 
 function attachVideoEventListeners() {
   const videos = document.querySelectorAll('.video');
@@ -161,29 +179,46 @@ $sendLocationButton.addEventListener("click", () => {
 
 
 // Populate the video select options with the two videos
-const availableVideos = ["music-video.mp4", "videoplayback.mp4","blankSpace.mp4","closer.mp4"];
-updateVideoSelectOptions(availableVideos);
+// const availableVideos = ["music-video.mp4", "videoplayback.mp4","blankSpace.mp4","closer.mp4","https://youtu.be/sRW9FvAZ3_w?si=bClgCHBLdnZqGg3c"];
+// updateVideoSelectOptions(availableVideos);
 
-function updateVideoSelectOptions(videos) {
-  $videoSelect.innerHTML = '<option value="" disabled selected>Select a video</option>';
-  videos.forEach((videoUrl, index) => {
-    const option = document.createElement("option");
-    option.value = videoUrl;
-    option.textContent = `Video ${index + 1}`;
-    $videoSelect.appendChild(option);
-  });
-}
+// function updateVideoSelectOptions(videos) {
+//   $videoSelect.innerHTML = '<option value="" disabled selected>Select a video</option>';
+//   videos.forEach((videoUrl, index) => {
+//     const option = document.createElement("option");
+//     option.value = videoUrl;
+//     option.textContent = `Video ${index + 1}`;
+//     $videoSelect.appendChild(option);
+//   });
+// }
 
 $sendVideoButton.addEventListener("click", () => {
-  const selectedVideoIndex = $videoSelect.selectedIndex;
-  if (selectedVideoIndex === 0) {
-    alert("Please select a video to send.");
+  const videoUrl = $videoUrlInput.value.trim();
+
+  if (videoUrl === "") {
+    alert("Please enter a video URL.");
     return;
   }
 
-  const selectedVideoUrl = $videoSelect.options[selectedVideoIndex].value;
-  socket.emit("sendVideo", selectedVideoUrl, () => {
+  try {
+    new URL(videoUrl); // Validate URL
+  } catch (e) {
+    alert("Invalid URL. Please enter a valid video URL.");
+    return;
+  }
+
+  const videoId = getYouTubeVideoID(videoUrl);
+  if (!videoId) {
+    alert("Invalid YouTube video URL.");
+    return;
+  }
+
+  socket.emit("sendVideo", { videoUrl, platform: 'YouTube' }, (error) => {
+    if (error) {
+      return alert(error);
+    }
     console.log("Video sent to the server.");
+    $videoUrlInput.value = "";
   });
 });
 
