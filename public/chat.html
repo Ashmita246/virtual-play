@@ -1,95 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat App</title>
-    <link rel="icon" href="/img/favicon.png" />
-    <link rel="stylesheet" href="/css/styles.min.css" />
+    <link rel="icon" href="/img/favicon.png">
+    <link rel="stylesheet" href="/css/styles.min.css">
     <script src="https://www.youtube.com/iframe_api"></script>
-  </head>
-  <body>
+</head>
+<body>
     <div class="chat">
-      <div id="sidebar" class="chat__sidebar">
-        <h1>Chat App</h1>
-      </div>
-
-      <div class="chat__main">
-        <div id="messages" class="chat__messages"></div>
-        <div id="videoContainer"></div>
-
-        <div class="compose">
-          <form id="userForm">
-            <label for="userInput">Enter your message:</label>
-            <input type="text" id="userInput" name="userInput" required />
-            <button type="submit">Send</button>
-          </form>
-
-          <button id="send-location">Send Location</button>
-          <!-- <select id="videoSelect">
-          <option value="" disabled selected>Select a video</option>
-          </select> -->
-          <label for="video-url-input">Enter video URL:</label>
-          <input id="video-url-input" placeholder="Enter video URL">
-          <button id="send-video">Send Video</button>
-          <button id="backward-button"><<</button>        
-          <button id="play-button">Play</button>    
-          <button id="forward-button">>></button>        
+        <div id="sidebar" class="chat__sidebar">
+            <h1>Chat App</h1>
         </div>
-      </div>
+
+        <div class="chat__main">
+            <div id="messages" class="chat__messages"></div>
+            <div id="videoContainer"></div>
+
+            <div class="compose">
+                <form id="userForm">
+                    <label for="userInput">Enter your message:</label>
+                    <input type="text" id="userInput" name="userInput" required />
+                    <button type="submit">Send</button>
+                </form>
+
+                <button id="send-location">Send Location</button>
+                <label for="video-url-input">Enter video URL:</label>
+                <input id="video-url-input" placeholder="Enter video URL">
+                <button id="send-video">Send Video</button>
+                <button id="backward-button"><<</button>        
+                <button id="play-button">Play</button>    
+                <button id="forward-button">>></button>        
+            </div>
+        </div>
     </div>
 
-    <script id="message-template" type=" text/html">
-      <div class="message">
-        <p>
-          <span class="message__name">{{username}}</span>
-          <span class="message__meta">{{createdAt}}</span>
-        </p>
-        <p>{{message}}</p>
-      </div>
+    <script id="message-template" type="text/html">
+        <div class="message">
+            <p>
+                <span class="message__name">{{username}}</span>
+                <span class="message__meta">{{createdAt}}</span>
+            </p>
+            <p>{{message}}</p>
+        </div>
     </script>
 
-    <script id="location-message-template" type=" text/html">
-      <div class="message">
-        <p>
-          <span class="message__name">{{username}}</span>
-          <span class="message__meta">{{createdAt}}</span>
-        </p>
-        <p><a href="{{url}}" target="_blank">My current Location</a></p>
-      </div>
+    <script id="location-message-template" type="text/html">
+        <div class="message">
+            <p>
+                <span class="message__name">{{username}}</span>
+                <span class="message__meta">{{createdAt}}</span>
+            </p>
+            <p><a href="{{url}}" target="_blank">My current Location</a></p>
+        </div>
     </script>
 
     <script id="video-message-template" type="text/html">
-      <div class="message">
-        <p>
-          <span class="message__name">{{username}}</span>
-          <span class="message__meta">{{createdAt}}</span>
-        </p>
-        {{#platform}}
-          {{#isYouTube}}
-          <div class="video-container">
-            <div id="youtube-player-{{videoId}}" class="video"></div>
-          </div>
-          {{/isYouTube}}
-        {{/platform}}
-      </div>
+        <div class="message">
+            <p>
+                <span class="message__name">{{username}}</span>
+                <span class="message__meta">{{createdAt}}</span>
+            </p>
+            {{#platform}}
+                {{#isYouTube}}
+                <div class="video-container">
+                    <div id="youtube-player-{{videoId}}" class="video"></div>
+                </div>
+                {{/isYouTube}}
+            {{/platform}}
+        </div>
     </script>
-    
 
     <script id="sidebar-template" type="text/html">
-      <h2 class="room-title">{{room}}</h2>
-      <h3 class="list-title">Users :</h3>
-      <ul class="users">
-        {{#users}}
-        <li>{{username}}</li>
-        {{/users}}
-      </ul>
+        <h2 class="room-title">{{room}}</h2>
+        <h3 class="list-title">Users :</h3>
+        <ul class="users">
+            {{#users}}
+            <li>{{username}}</li>
+            {{/users}}
+        </ul>
     </script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/4.1.0/mustache.min.js" integrity="sha512-HYiNpwSxYuji84SQbCU5m9kHEsRqwWypXgJMBtbRSumlx1iBB6QaxgEBZHSHEGM+fKyCX/3Kb5V5jeVXm0OglQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/4.1.0/mustache.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.6.0/qs.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/chat.js"></script>
-  </body>
+</body>
 </html>
