@@ -4,7 +4,7 @@ const http = require("http");
 const socketio = require("socket.io");
 const Filter = require("bad-words");
 const { generateMessage, generateLocationMessage, generateVideoMessage } = require("./utils/messages");
-const { getPlatformType,getYouTubeVideoID } = require('./utils/platformUtils');
+const { getPlatformType, getYouTubeVideoID } = require('./utils/platformUtils');
 const { addUser, removeUser, getUser, getUsersInRoom } = require("./utils/users");
 
 const app = express();
@@ -74,49 +74,42 @@ io.on("connection", (socket) => {
   socket.on('sendVideo', (videoUrl, callback) => {
     const user = getUser(socket.id);
     const platform = getPlatformType(videoUrl);
-  
+
     if (!supportedPlatforms.includes(platform)) {
       return callback(`Platform ${platform} is not supported.`);
     }
-  
+
     const videoId = getYouTubeVideoID(videoUrl);
     if (!videoId) {
       return callback("Invalid video URL.");
     }
-  
+
     const videoMessage = generateVideoMessage(user.username, videoUrl, platform);
-  
-    io.to(user.room).emit('videoMessage', {
-      username: socket.username,
-      videoUrl,
-      platform,
-      createdAt: new Date().getTime(),
-    });
-  
+
+    io.to(user.room).emit('videoMessage', videoMessage);
+
     callback();
   });
-  // Play and pause event on the specific room
-  socket.on("playVideo", ({ videoPaused }, callback) => {
-    console.log("playVideo event received");
-    const user = getUser(socket.id);
-    io.to(user.room).emit("playVideo", { videoPaused });
-    if (typeof callback === 'function') {
-      callback("Play/Pause acknowledged");
-    }
-  });
 
-  // Forward video event from client
-  socket.on("forwardVideo", () => {
-    console.log("server forwarding");
+  socket.on('playVideo', (currentTime) => {
     const user = getUser(socket.id);
-    io.to(user.room).emit("forwardVideo");
-  });
+    io.to(user.room).emit('playVideo', { currentTime });
+});
 
-  // Backward video event from client
-  socket.on("backwardVideo", () => {
+socket.on('pauseVideo', (currentTime) => {
     const user = getUser(socket.id);
-    io.to(user.room).emit("backwardVideo");
-  });
+    io.to(user.room).emit('pauseVideo', { currentTime });
+});
+
+socket.on('forwardVideo', (currentTime) => {
+    const user = getUser(socket.id);
+    io.to(user.room).emit('forwardVideo', { currentTime });
+});
+
+socket.on('backwardVideo', (currentTime) => {
+    const user = getUser(socket.id);
+    io.to(user.room).emit('backwardVideo', { currentTime });
+});
 
   socket.on("disconnect", () => {
     const user = removeUser(socket.id);

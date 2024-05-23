@@ -5,7 +5,6 @@ const $messageForm = document.querySelector("#userForm");
 const $messageFormInput = $messageForm.querySelector("input");
 const $messageFormButton = $messageForm.querySelector("button");
 const $sendLocationButton = document.getElementById("send-location");
-// const $videoSelect = document.getElementById("videoSelect");
 const $videoUrlInput = document.querySelector("#video-url-input");
 const $sendVideoButton = document.querySelector("#send-video");
 const $videoContainer = document.getElementById("videoContainer");
@@ -24,38 +23,28 @@ const sidebarTemplate = document.querySelector("#sidebar-template").innerHTML;
 const { username, room } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
 });
-let videoSharing = false;
+
+let currentPlayer = null; // Store the current YouTube player instance
 
 const autoscroll = () => {
-  // New message element
   const $newMessage = $messages.lastElementChild;
-
-  // Height of the new message
   const newMessageStyles = getComputedStyle($newMessage);
   const newMessageMargin = parseInt(newMessageStyles.marginBottom);
   const newMessageHeight = $newMessage.offsetHeight + newMessageMargin;
-
-  // Visible Height
   const visibleHeight = $messages.offsetHeight;
-
-  // Height of messages container
   const containerHeight = $messages.scrollHeight;
-
-  // How far have i scrolled
   const scrollOffset = $messages.scrollTop + visibleHeight;
 
   if (containerHeight - newMessageHeight <= scrollOffset) {
     $messages.scrollTop = $messages.scrollHeight;
   }
 };
-const videoPlayers = {};
-
-function getLastVideoElement() {
-  const videos = $messages.querySelectorAll('.video');
-  return videos[videos.length - 1]; // Return the last video element
-}
 
 function getYouTubeVideoID(url) {
+  if (!url) {
+    console.error("URL is undefined or empty:", url);
+    return null;
+  }
   try {
     const urlObj = new URL(url);
     const searchParams = new URLSearchParams(urlObj.search);
@@ -65,6 +54,34 @@ function getYouTubeVideoID(url) {
     return null;
   }
 }
+let globalPlayer = null;
+
+function onYouTubeIframeAPIReady() {
+  // Placeholder function for YouTube IFrame API readiness
+}
+
+function createYouTubePlayer(videoId) {
+  return new YT.Player(`youtube-player-${videoId}`, {
+    height: '315',
+    width: '560',
+    videoId: videoId,
+    events: {
+      onReady: onPlayerReady,
+      onStateChange: onPlayerStateChange
+    }
+  });
+}
+
+function onPlayerReady(event) {
+globalPlayer = event.target;
+}
+
+function onPlayerStateChange(event) {
+  if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.PLAYING) {
+    currentPlayer = event.target; // Update the current player instance
+  }
+}
+
 socket.on("message", (message) => {
   console.log(message);
   const html = Mustache.render(messageTemplate, {
@@ -88,41 +105,37 @@ socket.on("locationMessage", (message) => {
 });
 
 socket.on('videoMessage', (message) => {
-  const videoId = getYouTubeVideoID(message.videoUrl);
-  if (!videoId) {
-    console.error("Invalid video URL received:", message.videoUrl);
+  console.log("videoMessage: ", message);
+
+  const getUrl= message.videos
+  
+  if (!getUrl) {
+    console.error("Received message with undefined or empty videoUrl:", message);
     return;
   }
-
+  
+  const videoId = getYouTubeVideoID(getUrl);
+  if (!videoId) {
+    console.error("Invalid video URL received:", getUrl);
+    return;
+  }
+  
+  const isYouTube = message.platform === "YouTube";
+  
   const html = Mustache.render(videoMessageTemplate, {
     username: message.username,
-    platform: 'YouTube', // Set the platform to 'YouTube'
+    platform: message.platform,
+    isYouTube,
     videoId,
     createdAt: moment(message.createdAt).format("h:mm a"),
   });
   $messages.insertAdjacentHTML('beforeend', html);
   autoscroll();
-  attachVideoEventListeners(); // Attach event listeners to the new video
+  
+  if (isYouTube) {
+    createYouTubePlayer(videoId);
+  }
 });
-
-
-function attachVideoEventListeners() {
-  const videos = document.querySelectorAll('.video');
-
-  videos.forEach(video => {
-    video.addEventListener('play', () => {
-      videos.forEach(otherVideo => {
-        if (otherVideo !== video) {
-          otherVideo.pause();
-        }
-      });
-    });
-
-    video.addEventListener('error', () => {
-      console.error(`Failed to load video: ${video.currentSrc}`);
-    });
-  });
-}
 
 socket.on("roomData", ({ room, users }) => {
   const html = Mustache.render(sidebarTemplate, {
@@ -133,13 +146,10 @@ socket.on("roomData", ({ room, users }) => {
 });
 
 $messageForm.addEventListener("submit", function (event) {
-  event.preventDefault(); // Prevent form submission
-  // disable
+  event.preventDefault();
   $messageFormButton.setAttribute("disabled", "true");
-
   const message = document.getElementById("userInput").value;
   socket.emit("sendMessage", message, (err) => {
-    // enable
     $messageFormButton.removeAttribute("disabled");
     $messageFormInput.value = "";
     $messageFormInput.focus();
@@ -147,7 +157,6 @@ $messageForm.addEventListener("submit", function (event) {
     if (err) {
       return console.log(err);
     }
-
     console.log("The message was sent.");
   });
 });
@@ -160,37 +169,15 @@ $sendLocationButton.addEventListener("click", () => {
   $sendLocationButton.setAttribute("disabled", "true");
 
   navigator.geolocation.getCurrentPosition((position) => {
-    socket.emit(
-      "sendLocation",
-      {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-      },
-      () => {
-        $sendLocationButton.removeAttribute("disabled");
-        console.log("Location shared.");
-      }
-    );
+    socket.emit("sendLocation", {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+    }, () => {
+      $sendLocationButton.removeAttribute("disabled");
+      console.log("Location shared.");
+    });
   });
 });
-
-// Update the $sendVideoButton event listener to handle sending the selected video
-// Update the $sendVideoButton event listener to handle sending the selected video
-
-
-// Populate the video select options with the two videos
-// const availableVideos = ["music-video.mp4", "videoplayback.mp4","blankSpace.mp4","closer.mp4","https://youtu.be/sRW9FvAZ3_w?si=bClgCHBLdnZqGg3c"];
-// updateVideoSelectOptions(availableVideos);
-
-// function updateVideoSelectOptions(videos) {
-//   $videoSelect.innerHTML = '<option value="" disabled selected>Select a video</option>';
-//   videos.forEach((videoUrl, index) => {
-//     const option = document.createElement("option");
-//     option.value = videoUrl;
-//     option.textContent = `Video ${index + 1}`;
-//     $videoSelect.appendChild(option);
-//   });
-// }
 
 $sendVideoButton.addEventListener("click", () => {
   const videoUrl = $videoUrlInput.value.trim();
@@ -201,7 +188,7 @@ $sendVideoButton.addEventListener("click", () => {
   }
 
   try {
-    new URL(videoUrl); // Validate URL
+    new URL(videoUrl);
   } catch (e) {
     alert("Invalid URL. Please enter a valid video URL.");
     return;
@@ -213,7 +200,7 @@ $sendVideoButton.addEventListener("click", () => {
     return;
   }
 
-  socket.emit("sendVideo", { videoUrl, platform: 'YouTube' }, (error) => {
+  socket.emit("sendVideo", videoUrl, (error) => {
     if (error) {
       return alert(error);
     }
@@ -222,59 +209,56 @@ $sendVideoButton.addEventListener("click", () => {
   });
 });
 
-// Listener events on button click
-$playButton.addEventListener("click", () => {
-  const video = getLastVideoElement();
-  if (!video) return;
-
-  const videoPaused = video.paused;
-  socket.emit("playVideo", { videoPaused }, (ack) => {
-    console.log("Acknowledgement from server:", ack);
-    console.log("something something", video);
-  });
-});
-
-
-$forwardButton.addEventListener("click", () => {
-  const video = getLastVideoElement();
-  if (!video) return;
-
-  socket.emit("forwardVideo");
-});
-
-$backwardButton.addEventListener("click", () => {
-  const video = getLastVideoElement();
-  if (!video) return;
-
-  socket.emit("backwardVideo");
-});
-
-socket.on("forwardVideo", () => {
-  const video = getLastVideoElement();
-  if (video) {
-    video.currentTime += 10;
-  }
-});
-
-socket.on("backwardVideo", () => {
- 
-  const video = getLastVideoElement();
-  if (video) {
-    video.currentTime -= 10;
-  }
-});
-
-socket.on("playVideo", ({ videoPaused }) => {
-  const video = getLastVideoElement();
-  if (video) {
-    if (videoPaused) {
-      video.play();
-      $playButton.textContent = "Pause";
-    } else {
-      video.pause();
-      $playButton.textContent = "Play";
+$playButton.addEventListener('click', () => {
+    if (globalPlayer) {
+        const currentTime = globalPlayer.getCurrentTime();
+        const state = globalPlayer.getPlayerState();
+        if (state === YT.PlayerState.PLAYING) {
+            socket.emit('pauseVideo', currentTime);
+        } else {
+            socket.emit('playVideo', currentTime);
+        }
     }
-  }
+});
+
+$forwardButton.addEventListener('click', () => {
+    if (globalPlayer) {
+        const currentTime = globalPlayer.getCurrentTime();
+        socket.emit('forwardVideo', currentTime);
+    }
+});
+
+$backwardButton.addEventListener('click', () => {
+    if (globalPlayer) {
+        const currentTime = globalPlayer.getCurrentTime();
+        socket.emit('backwardVideo', currentTime);
+    }
+});
+
+socket.on('playVideo', ({ currentTime }) => {
+    if (globalPlayer) {
+        globalPlayer.seekTo(currentTime);
+        globalPlayer.playVideo();
+    }
+});
+
+socket.on('pauseVideo', ({ currentTime }) => {
+    if (globalPlayer) {
+        globalPlayer.seekTo(currentTime);
+        globalPlayer.pauseVideo();
+    }
+});
+
+socket.on('forwardVideo', ({ currentTime }) => {
+    if (globalPlayer) {
+        globalPlayer.seekTo(currentTime + 10);
+    }
+});
+
+socket.on('backwardVideo', ({ currentTime }) => {
+    if (globalPlayer) {
+        globalPlayer.seekTo(currentTime - 10);
+    }
 });
 
 socket.emit("join", { username, room }, (error) => {
