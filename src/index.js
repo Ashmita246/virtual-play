@@ -12,7 +12,7 @@ const server = http.createServer(app);
 const io = socketio(server);
 
 const port =3000;
-const publicDirectoryPath = path.join(__dirname, "../docs");
+const publicDirectoryPath = path.join(__dirname, "../public");
 
 app.use(express.static(publicDirectoryPath));
 
