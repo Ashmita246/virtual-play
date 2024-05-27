@@ -6,17 +6,20 @@ const Filter = require("bad-words");
 const { generateMessage, generateLocationMessage, generateVideoMessage } = require("./utils/messages");
 const { getPlatformType, getYouTubeVideoID } = require('./utils/platformUtils');
 const { addUser, removeUser, getUser, getUsersInRoom } = require("./utils/users");
+const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server,{
   cors:{
-    origin:"https://virtualplay.netlify.app/",
+    origin:"https://virtualplay.netlify.app",
     methods:["GET","POST"]
   }
 });
 
 const port =3000;
+
+app.use(cors());
 
 app.use('/socket.io', express.static(__dirname + '/node_modules/socket.io/client-dist/'));
 
