@@ -11,7 +11,7 @@ const cors = require('cors');
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server,{
-  transports:['websockter']
+  transports:['websocket']
 });
 
 const port =3000;
