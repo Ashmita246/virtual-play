@@ -3,8 +3,8 @@ from = "/api/*"
 to = "https://virtualplay.netlify.app/:splat"
 status = 200
 force = true
-
+headers = { Access-Control-Allow-Origin ="https://virtualplay.netlify.app"}
 [[headers]]
 for = "/*"
 [headers.values]
-Access-Control-Allow-Origin = "*"
+Access-Control-Allow-Origin = "https://virtualplay.netlify.app"
