@@ -1,0 +1,10 @@
+[[redirects]]
+from = "/api/*"
+to = "https://virtualplay.netlify.app/:splat"
+status = 200
+force = true
+headers = { Access-Control-Allow-Origin = "*", ... }
+[[headers]]
+for = "/*"
+[headers.values]
+Access-Control-Allow-Origin = "*"
