@@ -15,7 +15,7 @@ const port =3000;
 
 app.use('/socket.io', express.static(__dirname + '/node_modules/socket.io/client-dist/'));
 
-const publicDirectoryPath = path.join(__dirname, "../public");
+const publicDirectoryPath = path.join(__dirname, "../docs");
 
 app.use(express.static(publicDirectoryPath));
 
