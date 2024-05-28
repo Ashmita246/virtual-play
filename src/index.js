@@ -11,10 +11,8 @@ const cors = require('cors');
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server,{
-  cors: {
-    origin: "https://virtualplay.netlify.app", // Replace with your app's domain
-    methods: ["GET", "POST"]
-  }});
+  transport:['websockets']
+});
 
 const port =3000;
 
