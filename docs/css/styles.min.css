@@ -96,7 +96,10 @@
     width: 225px;
     overflow-y: auto;
   }
-  
+  .rows{
+    display: flex;
+    align-items: center;
+  }
   .chat__main {
     flex-grow: 1;
     display: flex;
@@ -130,7 +133,8 @@
   
   .compose {
     display: flex;
-    flex-shrink: 0;
+    flex-direction: column;
+    gap: 10px;
     padding: 24px;
   }
   
@@ -142,15 +146,42 @@
   
   .compose input {
     border: 1px solid #eee;
-    width: 100%;
+    width: 50%;
     padding: 12px;
     margin: 0 16px 0 0;
-    flex-grow: 1;
   }
   
   .compose button {
     font-size: 14px;
+    height: 42px;
+    width: 42px;
+    padding: 0;
+    display: grid;
+    place-content: center;
   }
+  .compose .row {
+    display: flex;
+    gap: 10px;
+}
+
+.compose .row:first-child {
+    align-items: center;
+}
+
+.compose .row:first-child form {
+    display: flex;
+    flex-grow: 1;
+    gap: 10px;
+}
+
+.compose .row:first-child form input {
+    flex-grow: 1;
+}
+
+.compose .row button,
+.compose .row input {
+    margin: 0;
+}
   
   .room-title {
     font-weight: 400;
@@ -180,7 +211,10 @@
   #forward-button,
   #backward-button,
   #play-button {
-    padding: 12px;
+    display: grid;
+    place-content: center;
+    height: 42px;
+    width: 42px;
     background: #7C5CBF;
     border: none;
     color: #fff;
@@ -227,7 +261,7 @@
     }
   
     .compose button {
-      width: 100%;
+      width: 50%;
       margin-right: 0;
       margin-bottom: 8px;
     }
@@ -241,7 +275,7 @@
   @media (max-width: 480px) {
     .centered-form__box {
       padding: 16px;
-      width: 90%;
+      width: 50%;
     }
   
     .compose button {

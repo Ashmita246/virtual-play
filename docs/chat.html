@@ -19,19 +19,38 @@
             <div id="videoContainer"></div>
 
             <div class="compose">
+                <div class="rows">
                 <form id="userForm">
-                    <label for="userInput">Enter your message:</label>
-                    <input type="text" id="userInput" name="userInput" required />
-                    <button type="submit">Send</button>
+                    <label for="userInput"></label>
+                    <input type="text" id="userInput" name="userInput" placeholder="Enter your message" />
+                    <button type="submit" style="margin-right: 10px;">
+                        <svg width="22px" height="22px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.8160000000000001"> <path d="M9.50929 4.23013L18.0693 8.51013C21.9093 10.4301 21.9093 13.5701 18.0693 15.4901L9.50929 19.7701C3.74929 22.6501 1.39929 20.2901 4.27929 14.5401L5.14929 12.8101C5.36929 12.3701 5.36929 11.6401 5.14929 11.2001L4.27929 9.46013C1.39929 3.71013 3.75929 1.35013 9.50929 4.23013Z" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path opacity="0.34" d="M5.43945 12H10.8395" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g><g id="SVGRepo_iconCarrier"> <path d="M9.50929 4.23013L18.0693 8.51013C21.9093 10.4301 21.9093 13.5701 18.0693 15.4901L9.50929 19.7701C3.74929 22.6501 1.39929 20.2901 4.27929 14.5401L5.14929 12.8101C5.36929 12.3701 5.36929 11.6401 5.14929 11.2001L4.27929 9.46013C1.39929 3.71013 3.75929 1.35013 9.50929 4.23013Z" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path opacity="0.34" d="M5.43945 12H10.8395" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                    </button>
+
+                    <button id="send-location">
+                        <svg width="22px" height="22px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.336"></g><g id="SVGRepo_iconCarrier"> <path d="M12 21C15.5 17.4 19 14.1764 19 10.2C19 6.22355 15.866 3 12 3C8.13401 3 5 6.22355 5 10.2C5 14.1764 8.5 17.4 12 21Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M12 12C13.1046 12 14 11.1046 14 10C14 8.89543 13.1046 8 12 8C10.8954 8 10 8.89543 10 10C10 11.1046 10.8954 12 12 12Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                    </button>
                 </form>
 
-                <button id="send-location">Send Location</button>
-                <label for="video-url-input">Enter video URL:</label>
+            </div>
+            <div class="rows">
+
+                <label for="video-url-input"></label>
+
                 <input id="video-url-input" placeholder="Enter video URL">
-                <button id="send-video">Send Video</button>
-                <button id="backward-button"><<</button>        
-                <button id="play-button">Play</button>    
-                <button id="forward-button">>></button>        
+
+                <button id="send-video">
+                   <svg fill="#ffffff" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="22px" height="22px" viewBox="0 0 460.00 460.00" xml:space="preserve" stroke="#ffffff" stroke-width="0.00459999"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.919998"></g><g id="SVGRepo_iconCarrier"> <g> <g> <g> <path d="M449.608,112.429h-247.13c-7.209,0-14.396,5.846-16.062,13.059l-48.163,209.023c-1.661,7.213,2.837,13.059,10.045,13.059 h247.123c7.213,0,14.403-5.846,16.068-13.059l48.164-209.023C461.316,118.274,456.816,112.429,449.608,112.429z M302.021,152 l3.361-14.601c0.58-2.52,3.1-4.563,5.614-4.563h20.685c2.521,0,4.095,2.043,3.513,4.563L331.83,152 c-0.578,2.521-3.095,4.563-5.612,4.563h-20.684C303.011,156.562,301.439,154.52,302.021,152z M204.099,152l3.365-14.601 c0.583-2.52,3.094-4.563,5.614-4.563h20.688c2.518,0,4.091,2.043,3.511,4.563L233.911,152c-0.582,2.521-3.093,4.563-5.614,4.563 h-20.682C205.098,156.562,203.521,154.52,204.099,152z M197.968,307.998l-3.367,14.601c-0.581,2.521-3.093,4.563-5.612,4.563 h-20.685c-2.524,0-4.097-2.043-3.515-4.563l3.364-14.601c0.584-2.521,3.096-4.563,5.615-4.563h20.689 C196.973,303.434,198.548,305.476,197.968,307.998z M295.885,307.998l-3.365,14.601c-0.575,2.521-3.095,4.563-5.609,4.563 h-20.688c-2.521,0-4.092-2.043-3.51-4.563l3.363-14.601c0.578-2.521,3.096-4.563,5.613-4.563h20.68 C294.895,303.434,296.467,305.476,295.885,307.998z M393.804,307.998l-3.362,14.601c-0.58,2.521-3.094,4.563-5.61,4.563h-20.69 c-2.519,0-4.091-2.043-3.51-4.563l3.365-14.601c0.583-2.521,3.093-4.563,5.612-4.563h20.685 C392.811,303.434,394.385,305.476,393.804,307.998z M392.406,292.082h-215.52l28.615-124.166h215.521L392.406,292.082z M433.119,137.399L429.751,152c-0.581,2.521-3.093,4.563-5.612,4.563H403.45c-2.518,0-4.091-2.042-3.51-4.563l3.363-14.601 c0.583-2.52,3.097-4.563,5.613-4.563h20.688C432.122,132.837,433.695,134.88,433.119,137.399z"></path> <path d="M268.557,265.72c1.002,0.628,2.194,0.939,3.455,0.939c1.422,0,2.935-0.397,4.354-1.188l52.389-29.044 c2.527-1.398,4.416-3.823,5.017-6.428c0.598-2.604-0.174-5.03-2.053-6.428l-39.001-29.045c-1.998-1.493-4.949-1.587-7.689-0.248 c-2.745,1.338-4.853,3.896-5.49,6.677l-13.388,58.087C265.516,261.824,266.434,264.382,268.557,265.72z"></path> <path d="M38.97,169.529h107.04c5.67,0,10.262-4.594,10.262-10.258c0-5.664-4.592-10.256-10.262-10.256H38.97 c-5.662,0-10.257,4.592-10.257,10.256C28.713,164.935,33.308,169.529,38.97,169.529z"></path> <path d="M117.298,242.343H10.256C4.591,242.343,0,246.933,0,252.595c0,5.665,4.591,10.258,10.256,10.258h107.042 c5.662,0,10.258-4.593,10.258-10.258C127.556,246.933,122.96,242.343,117.298,242.343z"></path> <path d="M141.91,205.336c0-5.663-4.589-10.256-10.251-10.256H67.686c-5.664,0-10.254,4.593-10.254,10.256 c0,5.663,4.59,10.256,10.254,10.256h63.974C137.321,215.592,141.91,210.999,141.91,205.336z"></path> <path d="M102.941,288.402H68.759c-5.667,0-10.259,4.595-10.259,10.259c0,5.661,4.592,10.256,10.259,10.256h34.183 c5.668,0,10.257-4.595,10.257-10.256C113.198,292.996,108.609,288.402,102.941,288.402z"></path> </g> </g> </g> </g></svg>
+                </button>
+
+                <button id="backward-button"><svg width="22px" height="22px" viewBox="-4.32 -4.32 44.64 44.64" xmlns="http://www.w3.org/2000/svg" fill="#ffffff" transform="rotate(180)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Lager_115" data-name="Lager 115" transform="translate(2 -2)"> <path id="Path_115" data-name="Path 115" d="M14,7.828,27.83,16,14,24.172V7.828M12,2a2,2,0,0,0-2,2V28a2,2,0,0,0,2,2L33.139,17.509a1.753,1.753,0,0,0,0-3.018L12,2Z" fill="#ffffff"></path> <path id="Path_116" data-name="Path 116" d="M10,19.445,2,24.172V7.828l8,4.727V8h.154L0,2A2,2,0,0,0-2,4V28a2,2,0,0,0,2,2l10-5.909Z" fill="#ffffff"></path> <rect id="Rectangle_60" data-name="Rectangle 60" width="4" height="28" rx="2" transform="translate(30 2)" fill="#ffffff"></rect> </g> </g></svg></button>  
+
+                <button id="play-button"><svg fill="#ffffff" width="22px" height="22px" viewBox="-4.2 -4.2 43.40 43.40" data-name="Layer 2" id="a57b1084-392d-4dd3-9105-7399e5d250c4" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M7.486,33.076a3.164,3.164,0,0,1-3.164-3.165V5.089A3.164,3.164,0,0,1,9.249,2.461L27.754,14.872a3.165,3.165,0,0,1,0,5.256L9.249,32.539h0A3.156,3.156,0,0,1,7.486,33.076ZM8.552,31.5h0ZM7.491,4.422a.7.7,0,0,0-.317.08.652.652,0,0,0-.352.587V29.911a.664.664,0,0,0,1.034.552L26.362,18.052a.66.66,0,0,0,.294-.553.646.646,0,0,0-.294-.55L7.856,4.537A.649.649,0,0,0,7.491,4.422Z"></path></g></svg></button>    
+              
+                <button id="forward-button">
+                    <svg width="22px" height="22px" viewBox="-4.32 -4.32 44.64 44.64" xmlns="http://www.w3.org/2000/svg" fill="#ffffff" transform="rotate(0)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="Lager_115" data-name="Lager 115" transform="translate(2 -2)"> <path id="Path_115" data-name="Path 115" d="M14,7.828,27.83,16,14,24.172V7.828M12,2a2,2,0,0,0-2,2V28a2,2,0,0,0,2,2L33.139,17.509a1.753,1.753,0,0,0,0-3.018L12,2Z" fill="#ffffff"></path> <path id="Path_116" data-name="Path 116" d="M10,19.445,2,24.172V7.828l8,4.727V8h.154L0,2A2,2,0,0,0-2,4V28a2,2,0,0,0,2,2l10-5.909Z" fill="#ffffff"></path> <rect id="Rectangle_60" data-name="Rectangle 60" width="4" height="28" rx="2" transform="translate(30 2)" fill="#ffffff"></rect> </g> </g></svg>
+                </button>  
+            </div>      
             </div>
         </div>
     </div>
