@@ -10,9 +10,10 @@ const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server,{
-  transport:['websockets']
-});
+// const io = socketio(server,{
+//   transport:['websockets']
+// });
+const io = socketio(server);
 
 const port =3000;
 

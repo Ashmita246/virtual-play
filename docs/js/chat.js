@@ -1,4 +1,5 @@
-const socket = io('https://virtualplay.netlify.app',{transport:['websockets']});
+// const socket = io('https://virtualplay.netlify.app',{transport:['websockets']});
+const socket = io();
 
 // Elements
 const $messageForm = document.querySelector("#userForm");
