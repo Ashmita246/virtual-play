@@ -236,6 +236,10 @@
     cursor: default;
     background: #7c5cbf94;
   }
+
+  .youtube-player{
+    pointer-events: none;
+  }
   
   /* Media Queries for Responsiveness */
   @media (max-width: 768px) {

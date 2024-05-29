@@ -63,9 +63,18 @@ function onYouTubeIframeAPIReady() {
 
 function createYouTubePlayer(videoId) {
   return new YT.Player(`youtube-player-${videoId}`, {
-    height: '315',
-    width: '560',
+    height: '250',
+    width: '350',
     videoId: videoId,
+    playerVars:{
+      'controls': 0, // Hide the default controls
+            'disablekb': 1, // Disable keyboard controls
+            'iv_load_policy': 3, // Disable video annotations
+            'modestbranding': 1, // Hide YouTube logo
+            'playsinline': 1, // Play inline on mobile devices
+            'autoplay': 0 // Disable autoplay
+            // 'enablejsapi': 1 
+    },
     events: {
       onReady: onPlayerReady,
       onStateChange: onPlayerStateChange
