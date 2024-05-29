@@ -240,6 +240,11 @@
   .youtube-player{
     pointer-events: none;
   }
+  /* .videoCall{
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+  } */
   
   /* Media Queries for Responsiveness */
   @media (max-width: 768px) {
@@ -254,6 +259,8 @@
   
     .chat__main {
       max-height: calc(100vh - 225px);
+      /* display: flex;
+      justify-content: space-around; */
     }
   
     .compose {

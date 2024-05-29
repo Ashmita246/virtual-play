@@ -1,6 +1,6 @@
 // const socket = io('https://virtualplay.netlify.app',{transport:['websockets']});
 const socket = io();
-
+// const peer = new Peer();
 // Elements
 const $messageForm = document.querySelector("#userForm");
 const $messageFormInput = $messageForm.querySelector("input");

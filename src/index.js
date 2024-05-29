@@ -10,6 +10,16 @@ const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
+
+
+const {ExpressPeerServer}= require('peer');
+
+const peerServer = ExpressPeerServer(server,{
+ debug: true, 
+});
+
+app.use('/peerjs',peerServer);
+
 // const io = socketio(server,{
 //   transport:['websockets']
 // });
