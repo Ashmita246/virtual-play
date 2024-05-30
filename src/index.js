@@ -144,6 +144,21 @@ socket.on('backwardVideo', (currentTime) => {
       });
     }
   });
+//    // WebRTC signaling handlers
+//    socket.on('offer', (offer) => {
+//     const user = getUser(socket.id);
+//     socket.broadcast.to(user.room).emit('offer', offer);
+// });
+
+// socket.on('answer', (answer) => {
+//     const user = getUser(socket.id);
+//     socket.broadcast.to(user.room).emit('answer', answer);
+// });
+
+// socket.on('ice-candidate', (candidate) => {
+//     const user = getUser(socket.id);
+//     socket.broadcast.to(user.room).emit('ice-candidate', candidate);
+// });
 });
 
 server.listen(port, () => {

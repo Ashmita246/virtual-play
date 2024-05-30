@@ -20,6 +20,22 @@ const locationMessageTemplate = document.querySelector("#location-message-templa
 const videoMessageTemplate = document.querySelector("#video-message-template").innerHTML;
 const sidebarTemplate = document.querySelector("#sidebar-template").innerHTML;
 
+// const localVideo = document.createElement('video');
+// const remoteVideo = document.createElement('video');
+// localVideo.autoplay = true;
+// remoteVideo.autoplay= true;
+// document.getElementById('videoContainer').append(localVideo, remoteVideo);
+
+
+// const peerConnectionConfig = {
+//   'iceServers': [
+//     { 'urls': 'stun:stun.l.google.com:19302' }
+//   ]
+// };
+
+// let localStream;
+// let peerConnection;
+
 // Options
 const { username, room } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
@@ -270,6 +286,78 @@ socket.on('backwardVideo', ({ currentTime }) => {
         globalPlayer.seekTo(currentTime - 10);
     }
 });
+
+// navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+//   .then(stream => {
+//     localStream = stream;
+//     localVideo.srcObject = stream;
+//   })
+//   .catch(error => console.error('Error accessing media devices.', error));
+
+// document.getElementById('startVideoCall').addEventListener('click', () => {
+//   startCall();
+// });
+
+// document.getElementById('endVideoCall').addEventListener('click', () => {
+//   endCall();
+// });
+
+// function startCall() {
+//   peerConnection = new RTCPeerConnection(peerConnectionConfig);
+//   peerConnection.onicecandidate = handleIceCandidate;
+//   peerConnection.ontrack = handleRemoteStream;
+//   localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+  
+//   peerConnection.createOffer()
+//     .then(offer => {
+//       return peerConnection.setLocalDescription(offer);
+//     })
+//     .then(() => {
+//       socket.emit('offer', peerConnection.localDescription);
+//     })
+//     .catch(error => console.error('Error creating offer:', error));
+// }
+
+// function handleIceCandidate(event) {
+//   if (event.candidate) {
+//     socket.emit('ice-candidate', event.candidate);
+//   }
+// }
+
+// function handleRemoteStream(event) {
+//   remoteVideo.srcObject = event.streams[0];
+// }
+
+// socket.on('offer', (offer) => {
+//   if (!peerConnection) {
+//     startCall();
+//   }
+//   peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
+//     .then(() => {
+//       return peerConnection.createAnswer();
+//     })
+//     .then(answer => {
+//       return peerConnection.setLocalDescription(answer);
+//     })
+//     .then(() => {
+//       socket.emit('answer', peerConnection.localDescription);
+//     })
+//     .catch(error => console.error('Error handling offer:', error));
+// });
+
+// socket.on('answer', (answer) => {
+//   peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+// });
+
+// socket.on('ice-candidate', (candidate) => {
+//   peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+// });
+
+// function endCall() {
+//   peerConnection.close();
+//   peerConnection = null;
+//   remoteVideo.srcObject = null;
+// }
 
 socket.emit("join", { username, room }, (error) => {
   if (error) {

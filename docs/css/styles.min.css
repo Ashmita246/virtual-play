@@ -320,3 +320,17 @@
     }
   }
   
+  #videoContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  /* #videoContainer video {
+    width: 300px;
+    height: 200px;
+    margin: 10px;
+    background-color: black;
+  }
+   */
