@@ -59,7 +59,3 @@ module.exports = {
     getUser,
     getUsersInRoom
 }
-
-
-
-
