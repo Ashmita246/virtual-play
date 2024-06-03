@@ -103,10 +103,10 @@ function createYouTubePlayer(videoId) {
 function onPlayerStateChange(event) {
   if (event.data == YT.PlayerState.PLAYING) {
     currentPlayer = event.target; // Update the current player instance
-    updatePlayPauseButton(YT.PlayerState.PLAYING); // Update the play/pause button to show "Pause"
+    updatePlayPauseButtons(YT.PlayerState.PLAYING); // Update the play/pause button to show "Pause"
   } else if (event.data == YT.PlayerState.PAUSED) {
     currentPlayer = event.target; // Update the current player instance
-    updatePlayPauseButton(YT.PlayerState.PAUSED); // Update the play/pause button to show "Play"
+    updatePlayPauseButtons(YT.PlayerState.PAUSED); // Update the play/pause button to show "Play"
   }
 }
 
