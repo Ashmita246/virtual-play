@@ -7,10 +7,11 @@ const $messageFormInput = $messageForm.querySelector("input");
 const $messageFormButton = $messageForm.querySelector("button");
 const $sendLocationButton = document.getElementById("send-location");
 const $videoUrlInput = document.querySelector("#video-url-input");
-const $sendVideoButton = document.querySelector("#send-video");
+const $sendVideoButton = document.querySelector("#send-video-button");
 const $videoContainer = document.getElementById("videoContainer");
 const $messages = document.querySelector("#messages");
 const $playButton = document.getElementById("play-button");
+const $pauseButton = document.getElementById("pause-button");
 const $forwardButton = document.getElementById("forward-button");
 const $backwardButton = document.getElementById("backward-button");
 
@@ -71,7 +72,7 @@ function getYouTubeVideoID(url) {
     return null;
   }
 }
-let globalPlayer = null;
+let globalPlayer ;
 
 function onYouTubeIframeAPIReady() {
   // Placeholder function for YouTube IFrame API readiness
@@ -98,15 +99,55 @@ function createYouTubePlayer(videoId) {
   });
 }
 
-function onPlayerReady(event) {
-globalPlayer = event.target;
-}
 
 function onPlayerStateChange(event) {
-  if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.PLAYING) {
+  if (event.data == YT.PlayerState.PLAYING) {
     currentPlayer = event.target; // Update the current player instance
+    updatePlayPauseButton(YT.PlayerState.PLAYING); // Update the play/pause button to show "Pause"
+  } else if (event.data == YT.PlayerState.PAUSED) {
+    currentPlayer = event.target; // Update the current player instance
+    updatePlayPauseButton(YT.PlayerState.PAUSED); // Update the play/pause button to show "Play"
   }
 }
+
+function updatePlayPauseButtons(state) {
+  if (state === YT.PlayerState.PLAYING) {
+    $playButton.style.display = "none";
+    $pauseButton.style.display = "inline-block";
+  } else {
+    $playButton.style.display = "inline-block";
+    $pauseButton.style.display = "none";
+  }
+}
+
+function onPlayerReady(event) {
+  globalPlayer = event.target;
+  updatePlayPauseButtons(globalPlayer.getPlayerState());
+  
+  //  Overlay an invisible element to prevent interaction with the video player
+   const iframe = globalPlayer.getIframe();
+   const playerContainer = iframe.parentElement;
+   playerContainer.style.position='relative';
+   const overlay = document.createElement('div');
+   overlay.style.position = 'absolute';
+   overlay.style.top = 0;
+   overlay.style.left = 0;
+   overlay.style.width = '100%';
+   overlay.style.height = '100%';
+   overlay.style.zIndex = 1; // Make sure it's on top of the player
+   overlay.style.backgroundColor='transparent';
+   playerContainer.appendChild(overlay);
+
+   overlay.addEventListener('click',(e)=>{
+    e.stopPropagation();
+    // globalPlayer.playVideo();
+    // globalPlayer.pauseVideo();
+   })
+  //  overlay.addEventListener('mousemove', (e) => {
+  //   e.stopPropagation(); // Stop the event from bubbling up
+  //   e.preventDefault(); // Prevent the default behavior of the event
+  // });
+  }
 
 socket.on("message", (message) => {
   console.log(message);
@@ -205,7 +246,7 @@ $sendLocationButton.addEventListener("click", () => {
   });
 });
 
-$sendVideoButton.addEventListener("click", () => {
+const sendVideoUrl = () => {
   const videoUrl = $videoUrlInput.value.trim();
 
   if (videoUrl === "") {
@@ -233,18 +274,57 @@ $sendVideoButton.addEventListener("click", () => {
     console.log("Video sent to the server.");
     $videoUrlInput.value = "";
   });
+};
+
+$videoUrlInput.addEventListener("keyup", (event) => {
+  if (event.key === "Enter") {
+    sendVideoUrl();
+  }
 });
 
+$sendVideoButton.addEventListener("click", sendVideoUrl);
+// $sendVideoButton.addEventListener("click", () => {
+//   const videoUrl = $videoUrlInput.value.trim();
+
+//   if (videoUrl === "") {
+//     alert("Please enter a video URL.");
+//     return;
+//   }
+
+//   try {
+//     new URL(videoUrl);
+//   } catch (e) {
+//     alert("Invalid URL. Please enter a valid video URL.");
+//     return;
+//   }
+
+//   const videoId = getYouTubeVideoID(videoUrl);
+//   if (!videoId) {
+//     alert("Invalid YouTube video URL.");
+//     return;
+//   }
+
+//   socket.emit("sendVideo", videoUrl, (error) => {
+//     if (error) {
+//       return alert(error);
+//     }
+//     console.log("Video sent to the server.");
+//     $videoUrlInput.value = "";
+//   });
+// });
+
 $playButton.addEventListener('click', () => {
-    if (globalPlayer) {
-        const currentTime = globalPlayer.getCurrentTime();
-        const state = globalPlayer.getPlayerState();
-        if (state === YT.PlayerState.PLAYING) {
-            socket.emit('pauseVideo', currentTime);
-        } else {
-            socket.emit('playVideo', currentTime);
-        }
-    }
+  if (globalPlayer) {
+    const currentTime = globalPlayer.getCurrentTime();
+    socket.emit('playVideo', currentTime);
+  }
+});
+
+$pauseButton.addEventListener('click', () => {
+  if (globalPlayer) {
+    const currentTime = globalPlayer.getCurrentTime();
+    socket.emit('pauseVideo', currentTime);
+  }
 });
 
 $forwardButton.addEventListener('click', () => {
@@ -262,17 +342,19 @@ $backwardButton.addEventListener('click', () => {
 });
 
 socket.on('playVideo', ({ currentTime }) => {
-    if (globalPlayer) {
-        globalPlayer.seekTo(currentTime);
-        globalPlayer.playVideo();
-    }
+  if (globalPlayer) {
+    globalPlayer.seekTo(currentTime);
+    globalPlayer.playVideo();
+    updatePlayPauseButtons(YT.PlayerState.PLAYING);
+  }
 });
 
 socket.on('pauseVideo', ({ currentTime }) => {
-    if (globalPlayer) {
-        globalPlayer.seekTo(currentTime);
-        globalPlayer.pauseVideo();
-    }
+  if (globalPlayer) {
+    globalPlayer.seekTo(currentTime);
+    globalPlayer.pauseVideo();
+    updatePlayPauseButtons(YT.PlayerState.PAUSED);
+  }
 });
 
 socket.on('forwardVideo', ({ currentTime }) => {
