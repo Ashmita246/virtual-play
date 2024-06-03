@@ -171,6 +171,7 @@ socket.on("locationMessage", (message) => {
   autoscroll();
 });
 
+let previousVideoPlayer = null;
 socket.on('videoMessage', (message) => {
   console.log("videoMessage: ", message);
 
@@ -188,6 +189,32 @@ socket.on('videoMessage', (message) => {
   }
   
   const isYouTube = message.platform === "YouTube";
+
+//   // pause previously rendered video element
+//   const existingVideoElementContainer = document.querySelector('.video-container');
+//   if (existingVideoElementContainer) {
+//     const videoElement = existingVideoElementContainer.querySelector('video');
+//     if (videoElement && !videoElement.paused) {
+//       videoElement.pause();
+//     }
+
+  
+//   const iframeElement = existingVideoElementContainer.querySelector('iframe');
+//   if (iframeElement && iframeElement.src.includes('youtube.com')) {
+//     // Pause the YouTube video using the YouTube Player API
+//     const iframeWindow = iframeElement.contentWindow;
+//     iframeWindow.postMessage(JSON.stringify({
+//       event: 'command',
+//       func: 'pauseVideo'
+//     }), '*');
+//   }
+// }
+
+// Remove any previously rendered video element
+const existingVideoElement = document.querySelector('.video-container');
+if (existingVideoElement) {
+  existingVideoElement.remove();
+}
   
   const html = Mustache.render(videoMessageTemplate, {
     username: message.username,
@@ -201,7 +228,14 @@ socket.on('videoMessage', (message) => {
   
   if (isYouTube) {
     createYouTubePlayer(videoId);
-  }
+  
+
+  // if(previousVideoPlayer){
+  //   previousVideoPlayer.pauseVideo();
+  // }
+
+  // previousVideoPlayer=newPlayer;
+}
 });
 
 socket.on("roomData", ({ room, users }) => {
