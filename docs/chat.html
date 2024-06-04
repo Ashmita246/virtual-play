@@ -60,13 +60,16 @@
     </div>
 
     <script id="message-template" type="text/html">
-        <div class="message">
+        <div class="message {{#isReply}}message--reply{{/isReply}}">
             <p>
-                <span class="message__name">{{username}}</span>
-                <span class="message__meta">{{createdAt}}</span>
+              <span class="message__name">{{username}}</span>
+              <span class="message__meta">{{createdAt}}</span>
+              {{#isReply}}
+                <span class="message__replyTo">in reply to <a href="#message-{{replyToMessageId}}">this message</a></span>
+              {{/isReply}}
             </p>
             <p>{{message}}</p>
-        </div>
+          </div>
     </script>
 
     <script id="location-message-template" type="text/html">
